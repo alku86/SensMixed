@@ -1,0 +1,26 @@
+import(lmerTest)
+import(Hmisc)
+importFrom("graphics", plot)
+importFrom(gplots, barplot2)
+import(parallel)
+import(plyr)
+import(lsmeans)
+import(doBy)
+import(xtable)
+
+export(sensmixed)
+export(consmixed)
+export(saveToDoc)
+#exportClasses(sensmixed)
+#exportClasses(consmixed)
+export(convertToFactors)
+
+
+S3method(print, sensmixed)
+S3method(plot, sensmixed)
+S3method(print, consmixed)
+S3method(plot, consmixed)
+
+
+
+

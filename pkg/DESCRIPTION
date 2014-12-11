@@ -1,0 +1,18 @@
+Package: SensMixed
+Type: Package
+Title: Mixed effects modelling for sensory and consumer data
+Version: 2.0-6
+Date: 2013-09-10
+Authors@R: c(person("Alexandra", "Kuznetsova", role = c("aut", "cre"),
+                          email = "alku@dtu.dk"),
+                   person("Per", "Bruun Brockhoff", role = c("aut", "ths")),
+                   person("Rune", "Haubo Bojesen Christensen", role = "aut"))
+Author: Alexandra Kuznetsova, Per Bruun Brockhoff, Rune Haubo Bojesen
+        Christensen
+Maintainer: Alexandra Kuznetsova <alku@dtu.dk>
+Depends: stats, lmerTest
+Imports: Hmisc, gplots,  parallel, plyr, lsmeans, doBy, xtable
+Description: The package provides with functions that facilitate analysis of Sensory as well as Consumer data
+License: GPL (>= 2)
+
+

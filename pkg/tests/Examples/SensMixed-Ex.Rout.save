@@ -1,0 +1,610 @@
+
+R Under development (unstable) (2014-11-18 r66997) -- "Unsuffered Consequences"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "SensMixed"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> options(pager = "console")
+> library('SensMixed')
+Loading required package: lmerTest
+Loading required package: Matrix
+Loading required package: lme4
+Loading required package: Rcpp
+
+Attaching package: 'lmerTest'
+
+The following object is masked from 'package:lme4':
+
+    lmer
+
+The following object is masked from 'package:stats':
+
+    step
+
+Warning: replacing previous import by 'plyr::is.discrete' when loading 'SensMixed'
+Warning: replacing previous import by 'plyr::summarize' when loading 'SensMixed'
+Warning: replacing previous import by 'lsmeans::lsmeans' when loading 'SensMixed'
+Warning: replacing previous import by 'xtable::label' when loading 'SensMixed'
+Warning: replacing previous import by 'xtable::label<-' when loading 'SensMixed'
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("consmixed")
+> ### * consmixed
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: consmixed
+> ### Title: Automated model selection process for the Consumer data
+> ### Aliases: consmixed
+> 
+> ### ** Examples
+> 
+> library(SensMixed)
+> data(ham)
+> 
+> consmixed(response="Informed.liking", 
++ Prod_effects= c("Product","Information"), 
++ Cons_effects=c("Gender","Age"), Cons = "Consumer", data =ham, structure=1)
+
+Random effects:
+                     Chi.sq Chi.DF elim.num p.value
+Information:Consumer   1.25      1        1  0.2626
+Product:Consumer     163.50      1     kept  <1e-07
+Consumer               3.42      1     kept  0.0645
+
+Fixed effects:
+             Sum Sq Mean Sq NumDF DenDF F.value Pr(>F)
+Product     19.3466  6.4489     3   240  3.8291 0.0105
+Information  6.5201  6.5201     1   323  3.8714 0.0500
+Gender       1.4781  1.4781     1    78  0.8777 0.3517
+Age          0.0254  0.0254     1    78  0.0151 0.9026
+
+Least squares means:
+               Product Information Gender Estimate Standard Error  DF t-value
+Product  1           1          NA     NA    5.807          0.233 309    24.9
+Product  2           2          NA     NA    5.103          0.233 309    21.9
+Product  3           3          NA     NA    6.091          0.233 309    26.2
+Product  4           4          NA     NA    5.924          0.233 309    25.4
+Information  1      NA           1     NA    5.631          0.141 103    40.0
+Information  2      NA           2     NA    5.832          0.141 103    41.5
+Gender  1           NA          NA      1    5.857          0.186  78    31.4
+Gender  2           NA          NA      2    5.606          0.189  78    29.7
+               Lower CI Upper CI p-value    
+Product  1         5.35     6.27  <2e-16 ***
+Product  2         4.65     5.56  <2e-16 ***
+Product  3         5.63     6.55  <2e-16 ***
+Product  4         5.47     6.38  <2e-16 ***
+Information  1     5.35     5.91  <2e-16 ***
+Information  2     5.55     6.11  <2e-16 ***
+Gender  1          5.49     6.23  <2e-16 ***
+Gender  2          5.23     5.98  <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+ Differences of LSMEANS:
+                  Estimate Standard Error    DF t-value Lower CI Upper CI
+Product 1 - 2          0.7          0.314 240.0    2.24   0.0849    1.323
+Product 1 - 3         -0.3          0.314 240.0   -0.90  -0.9027    0.335
+Product 1 - 4         -0.1          0.314 240.0   -0.37  -0.7361    0.501
+Product 2 - 3         -1.0          0.314 240.0   -3.14  -1.6064   -0.369
+Product 2 - 4         -0.8          0.314 240.0   -2.61  -1.4398   -0.202
+Product 3 - 4          0.2          0.314 240.0    0.53  -0.4521    0.785
+Information 1 - 2     -0.2          0.102 323.0   -1.97  -0.4012    0.000
+Gender 1 - 2           0.3          0.268  78.0    0.94  -0.2825    0.785
+                  p-value   
+Product 1 - 2       0.026 * 
+Product 1 - 3       0.367   
+Product 1 - 4       0.709   
+Product 2 - 3       0.002 **
+Product 2 - 4       0.009 **
+Product 3 - 4       0.596   
+Information 1 - 2   0.050 * 
+Gender 1 - 2        0.352   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Final model:
+lme4::lmer(formula = Informed.liking ~ Product + (1 | Product:Consumer) + 
+    Information + Gender + Age + (1 | Consumer), data = data, 
+    REML = reml.lmerTest.private, contrasts = l.lmerTest.private.contrast, 
+    devFunOnly = devFunOnly.lmerTest.private)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("convertToFactors")
+> ### * convertToFactors
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: convertToFactors
+> ### Title: converts variables of the data frame to factors
+> ### Aliases: convertToFactors
+> 
+> ### ** Examples
+> 
+> library(SensMixed)
+> data(carrots)
+> str(carrots)
+'data.frame':	1236 obs. of  14 variables:
+ $ Consumer  : Factor w/ 103 levels "168","169","171",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ Frequency : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ Gender    : int  2 2 2 2 2 2 2 2 2 2 ...
+ $ Age       : Factor w/ 4 levels "1","2","3","4": 4 4 4 4 4 4 4 4 4 4 ...
+ $ Homesize  : Factor w/ 2 levels "1","3": 2 2 2 2 2 2 2 2 2 2 ...
+ $ Work      : int  7 7 7 7 7 7 7 7 7 7 ...
+ $ Income    : int  2 2 2 2 2 2 2 2 2 2 ...
+ $ Preference: int  4 5 4 7 5 6 5 6 5 6 ...
+ $ Sweetness : int  2 5 2 6 4 6 3 6 4 4 ...
+ $ BITTER    : Factor w/ 7 levels "1","2","3","4",..: 4 2 2 2 2 2 2 2 1 2 ...
+ $ Crisp     : int  2 6 3 6 4 5 5 6 5 4 ...
+ $ sens1     : num  6.683 6.441 -1.948 0.481 2.181 ...
+ $ sens2     : num  -2.54 3.54 -4.29 -1.33 -4.67 ...
+ $ product   : Factor w/ 12 levels "Bolero_E","Bolero_L",..: 1 2 3 4 5 6 7 8 9 10 ...
+> 
+> carrots <- convertToFactors(carrots, c("Consumer", "Income", "Homesize"))
+> 
+> str(carrots)
+'data.frame':	1236 obs. of  14 variables:
+ $ Consumer  : Factor w/ 103 levels "168","169","171",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ Frequency : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ Gender    : int  2 2 2 2 2 2 2 2 2 2 ...
+ $ Age       : Factor w/ 4 levels "1","2","3","4": 4 4 4 4 4 4 4 4 4 4 ...
+ $ Homesize  : Factor w/ 2 levels "1","3": 2 2 2 2 2 2 2 2 2 2 ...
+ $ Work      : int  7 7 7 7 7 7 7 7 7 7 ...
+ $ Income    : Factor w/ 4 levels "1","2","3","4": 2 2 2 2 2 2 2 2 2 2 ...
+ $ Preference: int  4 5 4 7 5 6 5 6 5 6 ...
+ $ Sweetness : int  2 5 2 6 4 6 3 6 4 4 ...
+ $ BITTER    : Factor w/ 7 levels "1","2","3","4",..: 4 2 2 2 2 2 2 2 1 2 ...
+ $ Crisp     : int  2 6 3 6 4 5 5 6 5 4 ...
+ $ sens1     : num  6.683 6.441 -1.948 0.481 2.181 ...
+ $ sens2     : num  -2.54 3.54 -4.29 -1.33 -4.67 ...
+ $ product   : Factor w/ 12 levels "Bolero_E","Bolero_L",..: 1 2 3 4 5 6 7 8 9 10 ...
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plot.consmixed")
+> ### * plot.consmixed
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plot.consmixed
+> ### Title: plots the post-hoc for the consmixed object
+> ### Aliases: plot.consmixed
+> ### Keywords: ~kwd1 ~kwd2
+> 
+> ### ** Examples
+> 
+> res <- consmixed(response="Informed.liking", 
++ Prod_effects= c("Product","Information"), 
++ Cons_effects=c("Gender","Age"), Cons = "Consumer", data =ham, structure=1)
+> 
+> plot(res)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plot.sensmixed")
+> ### * plot.sensmixed
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plot
+> ### Title: function creates plots for the sensmixed object
+> ### Aliases: plot.sensmixed
+> 
+> ### ** Examples
+> 
+> res <- sensmixed(c("Coloursaturation", "Colourbalance"),
++                   Prod_effects=c("TVset"), 
++                   individual="Assessor", data=TVbo, MAM=TRUE, 
++                   reduce.random=FALSE)
+  |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%
+> plot(res)
+> plot(res, mult = TRUE)
+> plot(res, interact.symbol = " x ")
+> 
+> 
+> 
+> cleanEx()
+> nameEx("saveToDoc")
+> ### * saveToDoc
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: saveToDoc
+> ### Title: save the result in tables into a doc file for sensmixed or
+> ###   consmixed objects
+> ### Aliases: saveToDoc
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D res <- sensmixed(c("Coloursaturation", "Colourbalance"),
+> ##D                   Prod_effects=c("TVset"), 
+> ##D                   individual="Assessor", data=TVbo)
+> ##D 
+> ##D saveToDoc(res, file = "C:/Desktop/output.doc")
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("sensmixed")
+> ### * sensmixed
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: sensmixed
+> ### Title: Automated model selection process for each attribute of sensory
+> ###   data
+> ### Aliases: sensmixed
+> 
+> ### ** Examples
+> 
+> 
+> 
+> #import SensMixed package
+> library(SensMixed)
+> 
+> #import TVbo data from lmerTest package
+> data(TVbo)
+> 
+> #run automated selection process
+> res <- sensmixed(c("Coloursaturation", "Colourbalance"),
++ Prod_effects = c("TVset", "Picture"), replication="Repeat", 
++ individual="Assessor", data=TVbo, MAM=TRUE)
+  |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%
+> 
+> res_paral <- sensmixed(names(TVbo)[5:ncol(TVbo)],
++ Prod_effects = c("TVset", "Picture"), replication="Repeat", 
++ individual="Assessor", data=TVbo, error_structure="3-WAY")
+  |                                                                              |                                                                      |   0%Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+  |                                                                              |=====                                                                 |   7%  |                                                                              |=========                                                             |  13%  |                                                                              |==============                                                        |  20%  |                                                                              |===================                                                   |  27%  |                                                                              |=======================                                               |  33%  |                                                                              |============================                                          |  40%  |                                                                              |=================================                                     |  47%  |                                                                              |=====================================                                 |  53%  |                                                                              |==========================================                            |  60%  |                                                                              |===============================================                       |  67%  |                                                                              |===================================================                   |  73%  |                                                                              |========================================================              |  80%  |                                                                              |=============================================================         |  87%  |                                                                              |=================================================================     |  93%Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+  |                                                                              |======================================================================| 100%
+> 
+> 
+> ## run MAManalysis function
+> res_MAM <- sensmixed(c("Coloursaturation", "Colourbalance"),
++                  Prod_effects=c("TVset"), replication="Repeat", 
++                   individual="Assessor", data=TVbo, MAM_PER=TRUE)
+> ## print is not yet implemented
+> ## get anova part
+> res_MAM[[3]][,,1]
+                 SS     MS  DF     F   Pval
+Assessor      54.66   7.81   7  1.21 0.3571
+Product      221.51 110.76   2 16.11 0.0024
+Scaling       41.89   5.98   7  0.87 0.5703
+Disagreement  48.13   6.88   7  7.15 0.0000
+Error        161.67   0.96 168    NA     NA
+> 
+> ## compare with the general implementation
+> res <- sensmixed(c("Coloursaturation", "Colourbalance"),
++                   Prod_effects=c("TVset"), 
++                   individual="Assessor", data=TVbo, MAM=TRUE, 
++                   reduce.random=FALSE)
+  |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%
+> res$fixed      
+$Fval
+      Coloursaturation Colourbalance
+TVset         16.10851      5.582797
+
+$pvalueF
+      Coloursaturation Colourbalance
+TVset      0.002402597    0.03551971
+
+> 
+> ## Not run: 
+> ##D plot F and Chi square values
+> ##D plot(result)
+> ## End(Not run)
+> 
+> 
+> result <- sensmixed(names(TVbo)[5:ncol(TVbo)],
++ Prod_effects=c("TVset", "Picture"),
++ replication="Repeat", individual="Assessor", data=TVbo, 
++ calc_post_hoc = TRUE)
+  |                                                                              |                                                                      |   0%  |                                                                              |=====                                                                 |   7%  |                                                                              |=========                                                             |  13%  |                                                                              |==============                                                        |  20%  |                                                                              |===================                                                   |  27%  |                                                                              |=======================                                               |  33%  |                                                                              |============================                                          |  40%  |                                                                              |=================================                                     |  47%  |                                                                              |=====================================                                 |  53%  |                                                                              |==========================================                            |  60%  |                                                                              |===============================================                       |  67%  |                                                                              |===================================================                   |  73%  |                                                                              |========================================================              |  80%  |                                                                              |=============================================================         |  87%  |                                                                              |=================================================================     |  93%  |                                                                              |======================================================================| 100%
+> 
+> result
+
+Tests for the random effects:
+
+=========================================================================================
+                      TVset:Assessor  Picture:Assessor  TVset:Picture:Assessor  Assessor 
+-----------------------------------------------------------------------------------------
+Coloursaturation      63.94 ***        0.00              1.76                    0.09    
+Colourbalance         63.07 ***        3.03              0.00                    0.29    
+Noise                  0.14           13.35 ***          0.00                   13.72 ***
+Depth                  9.90 **         2.13              0.10                    5.91 *  
+Sharpness              4.80 *          0.00              4.61 *                  7.21 ** 
+Lightlevel            28.39 ***        0.60              7.76 **                 4.27 *  
+Contrast              54.37 ***        0.00              0.17                    1.01    
+Sharpnessofmovement    2.79           12.35 ***          0.00                    7.47 ** 
+Flickeringstationary   0.00            0.99              0.00                   17.68 ***
+Flickeringmovement     0.00            7.76 **           0.00                    9.23 ** 
+Distortion            14.98 ***        2.29             14.03 ***                0.11    
+Dimglasseffect         0.02           37.76 ***          0.00                    4.96 *  
+Cutting               33.80 ***        0.82              0.00                   15.24 ***
+Flossyedges           24.20 ***       50.31 ***          0.00                    3.00    
+Elasticeffect          0.32           65.14 ***          2.60                    1.15    
+=========================================================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+
+Tests for the fixed effects:
+
+=========================================================
+                      TVset      Picture    TVset:Picture
+---------------------------------------------------------
+Coloursaturation      16.08 ***   4.35 **    2.68 *      
+Colourbalance          5.16 *     1.37       4.16 ***    
+Noise                 41.97 ***  35.78 ***   5.45 ***    
+Depth                 14.09 ***   3.93 **    2.97 **     
+Sharpness             23.46 ***   3.47 *     6.95 ***    
+Lightlevel            44.50 ***  11.86 ***   4.37 ***    
+Contrast               9.66 **    3.60 *     4.08 ***    
+Sharpnessofmovement    0.24       4.77 *     4.18 ***    
+Flickeringstationary   6.03 **   13.50 ***   0.68        
+Flickeringmovement     0.52       2.20       0.19        
+Distortion            10.10 ***  38.56 ***  22.22 ***    
+Dimglasseffect         6.98 **    7.31 **    1.79        
+Cutting               20.01 ***   3.68 *     4.44 ***    
+Flossyedges            7.54 **    9.59 ***   4.50 ***    
+Elasticeffect         65.42 ***  22.17 ***  34.62 ***    
+=========================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+> result$fixed
+$Fval
+              Coloursaturation Colourbalance     Noise     Depth Sharpness
+TVset                16.075643      5.155893 41.973258 14.088652 23.461524
+Picture               4.350186      1.366872 35.779920  3.925361  3.474729
+TVset:Picture         2.676111      4.161644  5.451543  2.974771  6.947237
+              Lightlevel Contrast Sharpnessofmovement Flickeringstationary
+TVset          44.499221 9.664551           0.2436961            6.0307781
+Picture        11.860184 3.600907           4.7735469           13.4993781
+TVset:Picture   4.365633 4.082186           4.1776554            0.6771455
+              Flickeringmovement Distortion Dimglasseffect   Cutting
+TVset                  0.5196945   10.10103       6.983486 20.008339
+Picture                2.1989356   38.56281       7.313048  3.675437
+TVset:Picture          0.1880705   22.21871       1.786839  4.442049
+              Flossyedges Elasticeffect
+TVset            7.535224      65.41982
+Picture          9.591871      22.16991
+TVset:Picture    4.501171      34.62244
+
+$dprimeav
+              Coloursaturation Colourbalance     Noise     Depth Sharpness
+TVset                2.0067826     1.2485996 1.1452968 1.1315311 1.6645805
+Picture              0.4257223     0.3132705 2.0721588 0.4044139 0.4852896
+TVset:Picture        0.4271539     0.5326806 0.6096582 0.4503612 0.8777525
+              Lightlevel  Contrast Sharpnessofmovement Flickeringstationary
+TVset          4.1997042 1.4508547           0.1183767            0.4341093
+Picture        0.9633196 0.3873280           0.7470852            0.7499743
+TVset:Picture  0.7476661 0.5275559           0.5336938            0.2148674
+              Flickeringmovement Distortion Dimglasseffect   Cutting
+TVset                  0.1274410   1.621604      0.4671510 1.9392168
+Picture                0.4579629   1.935320      1.2723323 0.3913650
+TVset:Picture          0.1132358   1.879169      0.3490367 0.5503385
+              Flossyedges Elasticeffect
+TVset           1.0712514      1.429855
+Picture         1.6503898      2.559417
+TVset:Picture   0.5539883      1.536455
+
+$pvalueF
+              Coloursaturation Colourbalance        Noise        Depth
+TVset             5.826502e-05  0.0158161665 3.108624e-15 0.0004439607
+Picture           5.634430e-03  0.2807555212 1.942873e-08 0.0097672435
+TVset:Picture     1.679063e-02  0.0007074307 3.918874e-05 0.0088311174
+                 Sharpness   Lightlevel     Contrast Sharpnessofmovement
+TVset         3.383958e-05 8.571984e-07 0.0010575671        0.7869818436
+Picture       2.108750e-02 2.962298e-06 0.0148687086        0.0108784982
+TVset:Picture 1.070115e-05 9.533621e-04 0.0007758664        0.0006844792
+              Flickeringstationary Flickeringmovement   Distortion
+TVset                 2.938568e-03          0.5957550 8.446062e-04
+Picture               5.895205e-08          0.1182340 2.842171e-14
+TVset:Picture         6.682783e-01          0.9797916 7.305268e-14
+              Dimglasseffect      Cutting  Flossyedges Elasticeffect
+TVset            0.001254485 7.855995e-05 0.0060080584  0.000000e+00
+Picture          0.001540687 1.350076e-02 0.0003442874  1.479463e-07
+TVset:Picture    0.105303370 3.495397e-04 0.0003391643  0.000000e+00
+
+> 
+> result_MAM <- sensmixed(names(TVbo)[5:ncol(TVbo)],
++ Prod_effects=c("TVset", "Picture"),
++ replication="Repeat", individual="Assessor", data=TVbo,
++ MAM = TRUE)
+  |                                                                              |                                                                      |   0%  |                                                                              |=====                                                                 |   7%  |                                                                              |=========                                                             |  13%  |                                                                              |==============                                                        |  20%  |                                                                              |===================                                                   |  27%  |                                                                              |=======================                                               |  33%  |                                                                              |============================                                          |  40%  |                                                                              |=================================                                     |  47%  |                                                                              |=====================================                                 |  53%  |                                                                              |==========================================                            |  60%  |                                                                              |===============================================                       |  67%  |                                                                              |===================================================                   |  73%  |                                                                              |========================================================              |  80%  |                                                                              |=============================================================         |  87%  |                                                                              |=================================================================     |  93%  |                                                                              |======================================================================| 100%
+> 
+> result_MAM
+
+Tests for the random effects:
+
+=========================================================================================
+                      TVset:Assessor  Picture:Assessor  TVset:Picture:Assessor  Assessor 
+-----------------------------------------------------------------------------------------
+Coloursaturation      53.92 ***         0.00            0.57                     0.33    
+Colourbalance         44.36 ***         3.75            0.00                     0.22    
+Noise                  0.00            12.48 ***        0.00                    10.84 ***
+Depth                 11.58 ***         1.05            0.15                     3.68    
+Sharpness             72.91 ***         0.00            1.83                     2.49    
+Lightlevel            55.76 ***         0.36            4.81 *                   1.05    
+Contrast              42.55 ***         0.00            0.00                     0.48    
+Sharpnessofmovement    3.45            13.55 ***        0.00                     5.32 *  
+Flickeringstationary   0.00             0.00            0.00                    19.24 ***
+Flickeringmovement     0.00             3.74            0.00                     9.27 ** 
+Distortion            13.57 ***         0.00            9.20 **                  0.69    
+Dimglasseffect         0.00             0.00            0.00                    75.92 ***
+Cutting                4.06 *           0.14            0.00                     7.81 ** 
+Flossyedges            2.01           104.31 ***        0.00                     2.16    
+Elasticeffect          9.94 **         18.67 ***        0.00                     0.75    
+=========================================================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+
+Tests for the fixed effects:
+
+=========================================================
+                      TVset      Picture    TVset:Picture
+---------------------------------------------------------
+Coloursaturation      17.74 ***   4.62 **    2.84 *      
+Colourbalance          5.04 *     1.26       4.21 ***    
+Noise                 41.82 ***  31.60 ***   5.43 ***    
+Depth                 11.04 **    4.00 **    3.03 **     
+Sharpness              7.26 **    4.99 **    9.98 ***    
+Lightlevel            16.45 ***  13.25 ***   4.88 ***    
+Contrast               8.38 **    3.81 *     4.32 ***    
+Sharpnessofmovement    0.24       3.88 *     4.44 ***    
+Flickeringstationary   6.41 **   14.35 ***   0.72        
+Flickeringmovement     0.52       2.55       0.19        
+Distortion            10.92 ***  44.32 ***  25.53 ***    
+Dimglasseffect         7.21 ***  40.10 ***   1.84        
+Cutting               14.18 *     3.97 **    4.80 ***    
+Flossyedges           35.52 ***   3.64 *     4.35 ***    
+Elasticeffect         23.06 ***  28.32 ***  44.54 ***    
+=========================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+
+Tests for the scaling effects:
+
+===============================
+                      Scaling  
+-------------------------------
+Coloursaturation       2.71 *  
+Colourbalance          0.92    
+Noise                  0.57    
+Depth                  0.98    
+Sharpness              2.62 *  
+Lightlevel             1.15    
+Contrast               1.95    
+Sharpnessofmovement    1.66    
+Flickeringstationary   2.56 *  
+Flickeringmovement     1.44    
+Distortion             2.59 *  
+Dimglasseffect        15.15 ***
+Cutting                2.24    
+Flossyedges            6.45 ***
+Elasticeffect          5.02 ***
+===============================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+> 
+> result_MAM_mult <- sensmixed(names(TVbo)[5:ncol(TVbo)],
++ Prod_effects=c("TVset", "Picture"),
++ replication="Repeat", individual="Assessor", data=TVbo,
++ MAM = TRUE, mult.scaling = TRUE)
+  |                                                                              |                                                                      |   0%  |                                                                              |=====                                                                 |   7%  |                                                                              |=========                                                             |  13%  |                                                                              |==============                                                        |  20%  |                                                                              |===================                                                   |  27%  |                                                                              |=======================                                               |  33%  |                                                                              |============================                                          |  40%  |                                                                              |=================================                                     |  47%  |                                                                              |=====================================                                 |  53%  |                                                                              |==========================================                            |  60%  |                                                                              |===============================================                       |  67%  |                                                                              |===================================================                   |  73%  |                                                                              |========================================================              |  80%  |                                                                              |=============================================================         |  87%  |                                                                              |=================================================================     |  93%  |                                                                              |======================================================================| 100%
+> 
+> result_MAM_mult
+
+Tests for the random effects:
+
+==========================================================================================
+                      TVset:Assessor  Picture:Assessor  TVset:Picture:Assessor  Assessor  
+------------------------------------------------------------------------------------------
+Coloursaturation      52.19 ***        0.00             1.66                      0.03    
+Colourbalance         64.03 ***        1.58             0.00                      0.18    
+Noise                  0.00           13.25 ***         0.00                      9.56 ** 
+Depth                 57.57 ***        0.36             0.10                      2.04    
+Sharpness             30.98 ***        0.00             5.23 *                    2.65    
+Lightlevel             4.01 *          0.00             5.15 *                    7.80 ** 
+Contrast               3.57            0.00             0.14                      3.30    
+Sharpnessofmovement    6.33 *          9.06 **          0.00                      3.19    
+Flickeringstationary   0.00            0.01             0.00                     18.39 ***
+Flickeringmovement     0.00            3.65             0.00                      8.33 ** 
+Distortion             0.00            0.02             7.78 **                  14.44 ***
+Dimglasseffect         0.00            0.00             0.00                     74.97 ***
+Cutting                0.09            0.20             0.00                    205.52 ***
+Flossyedges            0.12           17.82 ***         0.00                      9.17 ** 
+Elasticeffect          0.47            0.40             3.68                     23.45 ***
+==========================================================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+
+Tests for the fixed effects:
+
+===========================================================
+                      TVset       Picture     TVset:Picture
+-----------------------------------------------------------
+Coloursaturation       15.08 ***    4.39 **    2.70 *      
+Colourbalance           4.55 *      2.23       3.95 **     
+Noise                  43.88 ***   31.81 ***   5.70 ***    
+Depth                   4.58 *      4.13 **    3.13 **     
+Sharpness               6.74 **     3.31 *     6.62 ***    
+Lightlevel            122.19 ***   13.11 ***   4.82 ***    
+Contrast               27.60 ***    3.62 *     4.10 ***    
+Sharpnessofmovement     0.14        4.75 *     4.18 ***    
+Flickeringstationary    6.24 **    13.97 ***   0.70        
+Flickeringmovement      0.51        2.46       0.18        
+Distortion             44.77 ***   47.83 ***  27.56 ***    
+Dimglasseffect          7.21 **    40.09 ***   1.84        
+Cutting               122.59 ***    3.74 *     4.53 ***    
+Flossyedges            36.37 ***   16.21 ***   4.46 ***    
+Elasticeffect          49.50 ***  118.96 ***  26.20 ***    
+===========================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+
+Tests for the scaling effects:
+
+====================================================
+                      Scaling TVset  Scaling Picture
+----------------------------------------------------
+Coloursaturation       0.82           1.19          
+Colourbalance          0.75           1.83          
+Noise                  1.99           0.67          
+Depth                  0.15           2.17 *        
+Sharpness              0.14           0.58          
+Lightlevel             4.49 *         1.94          
+Contrast               3.40           1.10          
+Sharpnessofmovement    0.16           0.98          
+Flickeringstationary   0.87           1.99          
+Flickeringmovement     0.42           1.36          
+Distortion             6.81 ***       3.04 **       
+Dimglasseffect         1.62          14.52 ***      
+Cutting               11.11 ***       1.58          
+Flossyedges            8.46 ***       3.07 *        
+Elasticeffect          0.87          10.88 ***      
+====================================================
+*** p < 0.001, ** p < 0.01, * p < 0.05
+
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  101.74 0.29 103.78 NA NA 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')
