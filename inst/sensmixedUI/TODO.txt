@@ -1,0 +1,8 @@
+1. Create action button to navgate to TabPanle Modelling controls
+2. Create Run button in order to run analysis
+3. Ste the progress bar in the middle of the screen and freeze all the components
+4. Include help file/ tutorial
+5. Include a tab how to make a reference
+
+# Call the recover function when an error occurs
+options(error = recover)

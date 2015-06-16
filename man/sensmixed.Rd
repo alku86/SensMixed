@@ -1,25 +1,26 @@
 \name{sensmixed}
 \alias{sensmixed}
 
-\title{Automated model selection process for each attribute of sensory data}
+\title{Analysis of sensory data within a mixed effects model framework}
 
 \description{
-Constructs the biggest possible models for the selected attributes and reduces 
-them to the best by principle of parsimony models. First elimination of random 
-effects is performed following by elimination of fixed effects.
-The LRT test is used for testing random terms, F-type hypothesis test is used 
-for testing fixed terms
+Constructs a mixed effects model for each of the selected by user attributes 
+according to the specified by the user structure arguments. If required, then
+the random structures are reduced by eliminating NS random effects.
+The likelihood ratio test (LRT) is used for testing random terms, F-type 
+hypothesis test is used for testing fixed terms
 }
 \usage{
 sensmixed(attributes=NULL, Prod_effects, replication = NULL, 
                               individual, data, product_structure = 3, 
                               error_structure ="No_Rep", MAM = FALSE,
-                              mult.scaling = FALSE,
+                              mult.scaling = FALSE, oneway_rand = TRUE,
                               MAM_PER = FALSE, adjustedMAM = FALSE, 
                               alpha_conditionalMAM = 1,
                               calc_post_hoc = FALSE, parallel = FALSE, 
                               reduce.random=TRUE, alpha.random = 0.1, 
-                              alpha.fixed = 0.05, interact.symbol = ":", ...)
+                              alpha.fixed = 0.05, interact.symbol = ":", 
+                              keep.effs = NULL,  ...)
 }
 \arguments{
   \item{attributes}{
@@ -70,6 +71,10 @@ sensmixed(attributes=NULL, Prod_effects, replication = NULL,
     
     logical. Whether multiple scaling should be used
 }
+\item{oneway_rand}{
+    
+    logical. Whether there should be just prod effect as part of the random part in MAM
+}
 \item{MAM_PER}{
     
     logical. if MAManalysis function should be called (scaling correction)
@@ -89,7 +94,7 @@ sensmixed(attributes=NULL, Prod_effects, replication = NULL,
     models for all the attributes
 }
 \item{parallel}{
-    logical. Should the computation be done in parallel. the default is TRUE   
+    logical. Should the computation be done in parallel. the default is FALSE   
 }
 
 \item{reduce.random}{
@@ -111,6 +116,10 @@ sensmixed(attributes=NULL, Prod_effects, replication = NULL,
     
      symbol for the indication of the interaction between effects. the default 
      one is ":".
+}
+\item{keep.effs}{
+    
+     which effects should be kept in a model.
 }
 
   \item{\dots}{
@@ -143,10 +152,6 @@ data(TVbo)
 res <- sensmixed(c("Coloursaturation", "Colourbalance"),
 Prod_effects = c("TVset", "Picture"), replication="Repeat", 
 individual="Assessor", data=TVbo, MAM=TRUE)
-
-res_paral <- sensmixed(names(TVbo)[5:ncol(TVbo)],
-Prod_effects = c("TVset", "Picture"), replication="Repeat", 
-individual="Assessor", data=TVbo, error_structure="3-WAY")
 
 
 ## run MAManalysis function

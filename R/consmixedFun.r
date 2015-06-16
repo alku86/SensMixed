@@ -15,7 +15,10 @@ consmixedFun <- function(response, Prod_effects, Cons_effects=NULL, Cons, data, 
   
 #attach(data)
 
-model <- createLMERmodel(structure, data, response, fixed = list(Product=Prod_effects, Consumer=Cons_effects), random = Cons, FALSE)
+model <- createLMERmodel(structure, data, response, 
+                         fixed = list(Product=Prod_effects, 
+                                      Consumer=Cons_effects), 
+                         random = Cons, FALSE)
   
 #check if reduction of the fixed part is required
 if(structure==1 || structure==2)
@@ -42,7 +45,8 @@ checkCorr <- function(model)
 if(checkCorr(model))
   isRandReduce <- FALSE
 
-t <- step(model, reduce.fixed = isFixReduce, reduce.random = isRandReduce, alpha.random = alpha.random, alpha.fixed = alpha.fixed)
+t <- step(model, reduce.fixed = isFixReduce, reduce.random = isRandReduce, 
+          alpha.random = alpha.random, alpha.fixed = alpha.fixed)
 
 #detach(data)
 

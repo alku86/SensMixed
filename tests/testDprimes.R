@@ -124,6 +124,50 @@ stopifnot(all.equal( sqrt(anova(m.testinter.col)[4,4]*(1/8)*(6/11)),
            res.inter$fixed$dprimeav[3, "Colourbalance"], tol = 1e-3))
 
 
+## compare examples from the d -prime presentation
+res2 <- sensmixed(c("Colourbalance", "Cutting"),
+                       Prod_effects = c("TVset", "Picture"), replication="Repeat", 
+                       individual="Assessor", data=TVbo, parallel = FALSE,
+                       calc_post_hoc = TRUE, reduce.random = FALSE)
+
+## check for cutting
+m.testinter.cut <- lm(Cutting ~ TVset*Picture + TVset:Assessor + Assessor +
+                        Picture:Assessor + TVset:Picture:Assessor, 
+                      data = TVbo)
+
+stopifnot(all.equal( sqrt(anova(m.testinter.cut)[1,4]*2/64),
+                     res2$fixed$dprimeav[1, "Cutting"], tol = 1e-2))
+stopifnot(all.equal( sqrt(anova(m.testinter.cut)[2,4]*2/48),
+                     res2$fixed$dprimeav[2, "Cutting"], tol = 1e-2))
+
+## check interaction term for Cutting
+deltas <- tapply(TVbo$Cutting,factor(TVbo$TVset:TVbo$Picture),mean)-
+  rep(tapply(TVbo$Cutting,factor(TVbo$TVset),mean),rep(4,3))-
+  rep(tapply(TVbo$Cutting,factor(TVbo$Picture),mean),3)+
+  rep(mean(TVbo$Cutting),12)
+
+deltadifs=matrix(rep(0,144),ncol=12)
+for (i in 1:12) for (j in 1:i) deltadifs[i,j]=deltas[i]-deltas[j]
+
+
+stopifnot(all.equal( sqrt(sum(deltadifs^2/anova(m.testinter.cut)[8,3])/(66)), 
+                     res2$fixed$dprimeav[3, "Cutting"], tol = 1e-2))
+
+stopifnot(all.equal( sqrt(anova(m.testinter.cut)[4,4]*(1/8)*(6/11)), 
+                     res.inter$fixed$dprimeav[3, "Cutting"], tol = 1e-1))
+
+## check for colourbalance
+m.testinter.col <- lm(Colourbalance ~ TVset*Picture + TVset:Assessor + Assessor +
+                        Picture:Assessor + TVset:Picture:Assessor, 
+                      data = TVbo)
+
+stopifnot(all.equal( sqrt(anova(m.testinter.col)[1,4]*2/64),
+                     res2$fixed$dprimeav[1, "Colourbalance"], tol = 1e-4))
+stopifnot(all.equal( sqrt(anova(m.testinter.col)[2,4]*2/48),
+                     res2$fixed$dprimeav[2, "Colourbalance"], tol = 1e-4))
+
+
+
 ## check for 3-way product structure for BO data
 
 # sound_data_balanced <- read.csv("C:/Users/alku/SkyDrive/Documents/Work/work PhD/SensMixed/BO data/sound_data_balanced.csv", sep=";")

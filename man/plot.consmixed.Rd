@@ -25,10 +25,6 @@ together with the confidence intervals for the fixed effects
  A numerical value giving the amount by which plotting text and symbols 
  should be magnified relative to the default
 }
-\item{cex}{
- A numerical value giving the amount by which plotting text and symbols 
- should be magnified relative to the default
-}
 \item{which.plot}{
  type of plot to be drawn
 }

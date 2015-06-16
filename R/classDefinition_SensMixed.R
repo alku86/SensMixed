@@ -1,7 +1,4 @@
-# The texreg package was written by Philip Leifeld.
-# Please use the forum at http://r-forge.r-project.org/projects/texreg/ 
-# for bug reports, help or feature requests.
-
+# modified texreg
 
 # a class for texreg objects
 setClass(Class = "texreg", 

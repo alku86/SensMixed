@@ -14,7 +14,7 @@ createFormulaAllFixRand  <-  function(structure, data, response, fixed,
    covs <- fixed$Product[which(unlist(lapply(fixed$Product,f1))!=TRUE)]
    if(length(covs) > 0)
      is.cov.present <- TRUE
-   formula.covs <- paste(covs,collapse="+")
+   formula.covs <- paste(covs, collapse="+")
      
      
    
@@ -106,7 +106,7 @@ createFormulaAllFixRand  <-  function(structure, data, response, fixed,
        #for sensmixed procedure
        if(is.list(random))
        {
-         if(structure$error_structure=="3-way")
+         if(structure$error_structure=="3-WAY")
            inter.rand <- combn(unlist(random),i,simplify = FALSE)
          else
            inter.rand <- combn(random$individual,i,simplify = FALSE)
@@ -135,13 +135,20 @@ createFormulaAllFixRand  <-  function(structure, data, response, fixed,
                
         }
      }     
+   ## added code for 2.0-7:
+   ## 2-WAY No-Rep + Replication effect + Assessor:Replication
+   if(is.list(random) && structure$error_structure == "2-WAY"){
+     formula1 <- paste(formula1,"+", "(1|",random$replication,")","+", 
+                       "(1|",random$individual, ":", random$replication, ")",
+                       sep="")
+   }
  return(as.formula(formula1))
 }
 
 
 nrandTerms <- function(random, structure)
 {
-  if (is.list(random) && structure$error_structure!="3-way") 
+  if (is.list(random) && structure$error_structure!="3-WAY") 
     return(length(random$individual))
    else return(length(random))
 }

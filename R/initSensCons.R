@@ -1,25 +1,30 @@
+###### Here all the general functions and the functiona that are exported 
+###### are defined 
 
 sensmixed <- function(attributes=NULL, Prod_effects, replication = NULL,
                       individual, data, product_structure = 3,
                       error_structure = "No_Rep", MAM = FALSE, 
-                      mult.scaling = FALSE, MAM_PER = FALSE, 
+                      mult.scaling = FALSE, oneway_rand = TRUE, MAM_PER = FALSE, 
                       adjustedMAM = FALSE, alpha_conditionalMAM = 1, 
                       calc_post_hoc = FALSE, parallel = FALSE,
                       reduce.random = TRUE, alpha.random = 0.1,
-                      alpha.fixed = 0.05, interact.symbol = ":", ...)
+                      alpha.fixed = 0.05, interact.symbol = ":", 
+                      keep.effs = NULL, ...)
 {  
   result <- sensmixedFun(attributes = attributes , Prod_effects, replication, 
                          individual, data,
                          product_structure = product_structure, 
                          error_structure = error_structure,  MAM = MAM, 
-                         mult.scaling = mult.scaling,
+                         mult.scaling = mult.scaling,  
+                         oneway_rand = oneway_rand,
                          MAM_PER = MAM_PER, adjustedMAM = adjustedMAM, 
                          alpha_conditionalMAM = alpha_conditionalMAM,
                          calc_post_hoc = calc_post_hoc,
                          parallel = parallel, reduce.random = reduce.random, 
                          alpha.random = alpha.random, 
                          alpha.fixed = alpha.fixed, 
-                         interact.symbol = interact.symbol)
+                         interact.symbol = interact.symbol,
+                         keep.effs = keep.effs)
   class(result) <- "sensmixed"
   result
 }
@@ -27,108 +32,23 @@ sensmixed <- function(attributes=NULL, Prod_effects, replication = NULL,
 
 print.sensmixed <- function(x, ...)
 {
-  ## output for the random effects
-#   colnames.out <- rownames(x$rand$Chi)
-#   names <- colnames(x$rand$Chi)
-#   tr_rand <- vector("list", length(colnames.out))
-#   
-#   for(i in 1:length(colnames.out)){       
-#     tr_rand[[i]] <- createTexreg(
-#       coef.names = names, se=x$rand$Chi[i,],
-#       coef = x$rand$Chi[i,],
-#       pvalues = x$rand$pvalueChi[i,], isRand=TRUE    
-#     )     
-#   }
+ 
   tr_rand <- .changeOutput(x$random$Chi, x$random$pvalueChi, isRand = TRUE)
   cat("\nTests for the random effects:\n")
   screenreg(tr_rand, custom.model.names = names(tr_rand) )
   
-  ## output for the fixed effects
-#   colnames.out <- rownames(x$fixed$Fval)
-#   names <- colnames(x$fixed$Fval)
-#   tr <- vector("list", length(colnames.out))
-#   
-#   for(i in 1:length(colnames.out)){       
-#     tr[[i]] <- createTexreg(
-#       coef.names = names, se=x$fixed$Fval[i,],
-#       coef = x$fixed$Fval[i,],
-#       pvalues = x$fixed$pvalueF[i,], isRand = FALSE    
-#     )     
-#   }
+
   
   tr_fixed <- .changeOutput(x$fixed$Fval, x$fixed$pvalueF, isRand = FALSE)
   cat("\nTests for the fixed effects:\n")
   screenreg(tr_fixed, custom.model.names = names(tr_fixed) )
   
   if("scaling" %in% names(x)){
-#     colnames.out <- rownames(x$scaling$FScaling)
-#     names <- colnames(x$scaling$FScaling)
-#     tr <- vector("list", length(colnames.out))
-#     
-#     for(i in 1:length(colnames.out)){       
-#       tr[[i]] <- createTexreg(
-#         coef.names = names, se=x$scaling$FScaling[i,],
-#         coef = x$scaling$FScaling[i,],
-#         pvalues = x$scaling$pvalueScaling[i,], isRand=FALSE     
-#       )     
-#     }
     tr_scaling <- .changeOutput(x$scaling$FScaling, x$scaling$pvalueScaling, 
                                 FALSE)
     cat("\nTests for the scaling effects:\n")
     screenreg(tr_scaling, custom.model.names = names(tr_scaling) )
-  }
-  
-  ## output for the fixed effects
-#   names <- colnames(x$fixed$Fval)
-#   co1 <- res_paral$fixed$Fval[1,]
-#   se1 <- res_paral$fixed$Fval[1,]
-#   pval1 <- res_paral$fixed$pvalueF[1,]
-#   
-#   colnames.out <- rownames(res_paral$fixed$Fval)
-#   tr <- vector("list", length(colnames.out))
-#   
-#   for(i in 1:length(colnames.out)){       
-#     tr[[i]] <- createTexreg(
-#       coef.names = names, se=res_paral$fixed$Fval[i,],
-#       coef = res_paral$fixed$Fval[i,],
-#       pvalues = res_paral$fixed$pvalueF[i,],     
-#     )     
-#   }
-#   
-#   screenreg(tr, custom.model.names = colnames.out )
-#   
-#   ########
-#   cat("\nTests for fixed effects:\n")
-#   cat("matrix of F values:\n")
-#   print(x$fixed$Fval,2)
-#   cat("matrix of p-values:\n")
-#   res <- apply(x$fixed$pvalueF,2, format.pval, digits=2)
-#   if(class(res) =="character"){
-#     res <- t(as.matrix(res, rownames.force = TRUE))
-#   }
-#   rownames(res) <- rownames(x$fixed$pvalueF)
-#   print(res)
-#   
-#   cat("\nTests for random effects:\n")
-#   cat("matrix of Chi values:\n")
-#   print(x$rand$Chi,2)  
-#   cat("matrix of p-values:\n")
-#   res <- apply(x$rand$pvalueChi,2, format.pval, digits=2)
-#   rownames(res) <- rownames(x$rand$pvalueChi)
-#   print(res)
-#   ## if Scaling is present
-#   if("scaling" %in% names(x)){
-#     cat("\nTests for scaling effects:\n")
-#     cat("matrix of F values for scaling effects:\n")
-#     print(x$scaling$FScaling,2)
-#     cat("matrix of p-values for Scaling effects:\n")
-#     res <- apply(x$scaling$pvalueScaling,2, format.pval, digits=2)
-#     if(class(res) =="character"){
-#       res <- t(as.matrix(res, rownames.force = TRUE))
-#     }
-#     rownames(res) <- rownames(x$scaling$pvalueScaling)
-#     print(res)
-#   }    
+  }  
 }  
 
 plot.sensmixed <- function(x, mult = FALSE, dprime = FALSE, sep = FALSE, cex = 2,  
@@ -140,7 +60,8 @@ plot.sensmixed <- function(x, mult = FALSE, dprime = FALSE, sep = FALSE, cex = 2
                 isRand = isRand, isScaling = isScaling)
 }
 
-saveToDoc <- function(x, file = NA, bold = FALSE, append = TRUE)
+saveToDoc <- function(x, file = NA, bold = FALSE, append = TRUE, type = "html",
+                      typeEffs = 1)
 {
   if(!(class(x) %in% c("sensmixed", "consmixed")))
     stop("x should be of class sensmixed")
@@ -148,10 +69,11 @@ saveToDoc <- function(x, file = NA, bold = FALSE, append = TRUE)
   #  stop("need to specify file")
   
   if(class(x)=="sensmixed"){
-   .createDocOutputSensmixed(x, file = file, bold = bold, append = append)
+   return(.createDocOutputSensmixed(x, file = file, bold = bold, append = append,
+                             type = type, typeEffs = typeEffs))
   }
   if(class(x) == "consmixed"){ 
-   .createDocOutputConsmixed(x, file = file, bold = bold, append = append)
+   return(.createDocOutputConsmixed(x, file = file, bold = bold, append = append))
   }
 }  
 
@@ -238,4 +160,5 @@ print.consmixed <- function(x, ...)
     print(x$anova.table)
   cat("\nFinal model:\n")
   print(x$model@call) 
-}  
+} 
+

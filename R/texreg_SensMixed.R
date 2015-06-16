@@ -218,7 +218,7 @@ texreg <- function(l, file = NA, single.row = FALSE,
                    custom.coef.names = NULL, custom.gof.names = NULL, custom.note = NULL, 
                    digits = 2, leading.zero = TRUE, symbol = "\\cdot", override.coef = 0, 
                    override.se = 0, override.pval = 0, omit.coef = NA, reorder.coef = NULL, 
-                   reorder.gof = NULL, return.string = FALSE, ci.force = FALSE,
+                   reorder.gof = NULL, return.string = TRUE, ci.force = FALSE,
                    ci.force.level = 0.95, ci.test = 0, bold = 0.00, center = TRUE, 
                    caption = "Statistical models", caption.above = TRUE, 
                    label = "table:coefficients", booktabs = FALSE, dcolumn = FALSE, 
@@ -535,7 +535,7 @@ texreg <- function(l, file = NA, single.row = FALSE,
   }
   
   if (is.na(file)) {
-    cat(string)
+    return(string)
   } else if (!is.character(file)) {
     stop("The 'file' argument must be a character string.")
   } else {
@@ -559,7 +559,7 @@ htmlreg <- function(l, file = NA, single.row = FALSE,
                     reorder.gof = NULL, return.string = FALSE, ci.force = FALSE,
                     ci.force.level = 0.95, ci.test = 0, bold = 0.00, center = TRUE, 
                     caption = "Statistical models", caption.above = FALSE, star.symbol = "*", 
-                    inline.css = TRUE, doctype = TRUE, html.tag = FALSE, head.tag = FALSE, 
+                    inline.css = TRUE, doctype = TRUE, html.tag = TRUE, head.tag = TRUE, 
                     body.tag = FALSE, append = TRUE , ...) {
   
   linit <- l
@@ -580,7 +580,7 @@ htmlreg <- function(l, file = NA, single.row = FALSE,
                                     "border-bottom: 2px solid black;\"")
       css.td <- " style=\"padding-right: 12px; border: none;\""
       css.caption <- ""
-      css.sup <- " style=\"vertical-align: 4px;\""
+      css.sup <- ""   #" style=\"vertical-align: 4px;\""
     } else {
       css.table <- ""
       css.th <- ""
@@ -879,7 +879,7 @@ htmlreg <- function(l, file = NA, single.row = FALSE,
   }
   #print(cat(string)) 
   if (is.na(file)) {
-    cat(string)
+    return(cat(string))
   } else if (!is.character(file)) {
     stop("The 'file' argument must be a character string.")
   } else {

@@ -1,94 +1,19 @@
-## the file contains the functions used for presenting the results in tables 
-## or plots
+#### the file contains the functions used for presenting the results in tables #
+#### or plots ##################################################################
+
+
 calc.cols <- function(x)
 {
   if(x<0.001) 
-    return("red") 
+    return("p-value < 0.001")#return("red")# 
   if(x<0.01) 
-    return("orange") 
+    return("p-value < 0.01")#return("orange")# 
   if(x<0.05) 
-    return("yellow") 
-  return("grey")
+    return("p-value < 0.05")#return("yellow")# 
+  return("NS")#return("grey")#
 }
 
 
-
-## UNUSED function
-.plotFixedPartsSensmixed <- function(Fval, pvalueF, cex=2, interact.symbol){
-  #x11()
-  #plot.new()
-  # layout(matrix(c(rep(2,2),3,rep(2,2),3,rep(2,2),3, rep(1,2),3), 4, 3, 
-  #               byrow = TRUE))
-  layout(matrix(c(rep(2,2),3,rep(2,2),3,rep(2,2),3, rep(1,2),3), 4, 3, 
-                byrow = TRUE), 
-         heights=c(0.4, 1 , 1.4), widths = c(2,2,4.3))
-  
-  #Fval <- resSensMixed$fixed$Fval
-  #pvalueF <- resSensMixed$fixed$pvalueF
-  
-  #### plots for F value
-  cex.gr <- cex
-  names.fixed <- rownames(Fval)# [inds.fixed]
-  if(!interact.symbol==":"){        
-    names.fixed <- sapply(names.fixed, change.inter.symbol, interact.symbol)
-  }
-  
-  ylim <- c(0, max(sqrt(Fval)) + 0.5)
-  
-  names.fixed.effs <- LETTERS[1:nrow(Fval)]
-  names.fixed.effs.legend <- paste(names.fixed.effs, collapse="")
-  #plot(x=bp1[1,], y=rep(1,15), type="n", axes=F, xlab="", ylab="")
-  plot.new()
-  #else if (is.matrix(FChi.fvalue))
-  #  ylim <- c(0, max(apply(FChi.fvalue,2,sum)))
-  for(i in 1:ncol(Fval))
-  {
-    
-    fvals <- matrix(0, nrow(Fval), ncol(Fval))
-    fvals[,i] <- sqrt(Fval[,i])
-    
-    
-    if(i == ncol(Fval))
-    {
-      if(length(colnames(Fval)) > 10)
-        cex.names <- cex - 0.2
-      else
-        cex.names <- cex
-      bp <- barplot(fvals, col= unlist(lapply(pvalueF[,i], calc.cols)), 
-                    ylim=ylim, las=2, main=expression(paste("Barplot for ",
-                                                            sqrt(F), 
-                                                            " values"
-                    )), names.arg =
-                      colnames(Fval), las=2, cex.names=cex.names, beside=TRUE, 
-                    add=TRUE, xpd=FALSE, cex.main=cex, cex.axis=cex)       
-      #text(x=bp, y=rep(0.5, ncol(Fval)), names.fixed.effs, font=1, cex=cex)
-      if(sqrt(max(Fval)) > 8)
-        text(x=bp, y=sqrt(Fval)+0.3, names.fixed.effs, font=1, cex=cex)
-      else
-        text(x=bp, y=sqrt(Fval)+0.15, names.fixed.effs, font=1, cex=cex)
-      
-      plot.new()        
-      legend("right", names.fixed, pch=names.fixed.effs.legend,  
-             bty="n", pt.lwd=cex, pt.cex=cex, text.font=1, cex=cex)
-      legend("topright", c("ns","p < 0.05", "p < 0.01", "p < 0.001"), pch=15, 
-             col=c("grey","yellow","orange","red"), title="Significance", 
-             bty="n", cex=cex, text.font=1)
-    }
-    else{
-      if(i==1)
-        barplot(fvals, col=unlist(lapply(pvalueF[,i], calc.cols)), 
-                ylim=ylim, axes=FALSE, las=2, cex.names=cex, 
-                beside=TRUE)    
-      else
-        barplot(fvals, col=unlist(lapply(pvalueF[,i], calc.cols)), 
-                ylim=ylim, axes=FALSE, las=2, cex.names=cex, 
-                beside=TRUE, add=TRUE)          
-    }       
-    if(i < ncol(Fval))
-      par(new=TRUE)
-  }
-  
-} 
 
 change.inter.symbol <- function(x, interact.symbol){
   if(grepl(":", x)){
@@ -115,152 +40,104 @@ change.inter.symbol <- function(x, interact.symbol){
   names(tr) <- colnames.out
   return(tr)
 }
+
+# facetAdjust <- function(x, pos = c("up", "down"))
+# {
+#   pos <- match.arg(pos)
+#   p <- ggplot_build(x)
+#   gtable <- ggplot_gtable(p); #dev.off()
+#   dims <- apply(p$panel$layout[2:3], 2, max)
+#   nrow <- dims[1]
+#   ncol <- dims[2]
+#   panels <- sum(grepl("panel", names(gtable$grobs)))
+#   space <- ncol * nrow
+#   n <- space - panels
+#   if(panels != space){
+#     idx <- (space - ncol - n + 1):(space - ncol)
+#     gtable$grobs[paste0("axis_b",idx)] <- list(gtable$grobs[[paste0("axis_b",panels)]])
+#     if(pos == "down"){
+#       rows <- grep(paste0("axis_b\\-[", idx[1], "-", idx[n], "]"), 
+#                    gtable$layout$name)
+#       lastAxis <- grep(paste0("axis_b\\-", panels), gtable$layout$name)
+#       gtable$layout[rows, c("t","b")] <- gtable$layout[lastAxis, c("t")]
+#     }
+#   }
+#   class(gtable) <- c("facetAdjust", "gtable", "ggplot"); gtable
+# }
 # 
-# .convertOutputToMatrix <- function(result){
-#   resSensMixed$random
-#   Chi <- matrix(0, nrow = length(result), ncol = nrow(result[[1]]))
+# print.facetAdjust <- function(x, newpage = is.null(vp), vp = NULL) {
+#   if(newpage)
+#     grid.newpage()
+#   if(is.null(vp)){
+#     grid.draw(x)
+#   } else {
+#     if (is.character(vp)) 
+#       seekViewport(vp)
+#     else pushViewport(vp)
+#      grid.draw(x)
+#     upViewport()
+#  }
+#  invisible(x)
 # }
 
-.plotBars <- function(val, pval, title, plotLegend = TRUE, plotLetters = TRUE, 
-                      reduceNames = TRUE, cex = 2, cex.main = 2, 
-                      ylim = ylim, 
-                      names.effs = NULL, 
-                      names.effs.legend = NULL){
-  if(reduceNames)
-    names.arg <- sapply(colnames(val), 
-                        function(x) paste(substring(x,1,7),"..", sep=""))
-  else
-    names.arg <- colnames(val)
-  if(plotLegend)
-    cex.names <- cex
-  else
-    cex.names <- cex - 0.7
-  for(i in 1:ncol(val))
-  {
-    vals <- matrix(0, nrow(val), ncol(pval))
-    vals[,i] <- val[,i]      
-    if(i == ncol(val)){
-      if(length(colnames(val)) > 10)
-        cex.names <- cex.names - 0.2
-      else
-        cex.names <- cex.names
-      bp <- barplot(vals, col = unlist(lapply(pval[,i], calc.cols)), 
-                    ylim=ylim, las = 2, 
-                    main = title,
-                    names.arg = names.arg, las = 2,
-                    cex.names = cex.names, beside = TRUE, add = TRUE, 
-                    xpd = FALSE, cex.main = cex.main, cex.axis = cex - 0.3) 
-      
-      if(plotLetters){
-        if(max(val) > 8)
-          text(x = bp, y = val + 0.3, names.effs, font = 1, cex = cex - 0.3)
-        else
-          text(x = bp, y = val + 0.15, names.effs, font = 1, cex = cex - 0.1)
-      }
-      
-      #text(x=bp, y=rep(0.5, ncol(Chi)), names.rand.effs, font=1, cex=cex)
-      
-      if(plotLegend){
-        plot.new()        
-        legend("right", rownames(val), pch = names.effs.legend,  
-               bty="n", pt.lwd = cex, pt.cex = cex, text.font = 1, 
-               cex = cex - 0.4)
-        legend("topright", c("ns","p < 0.05", "p < 0.01", "p < 0.001"), pch = 15, 
-               col = c("grey","yellow","orange","red"), title = "Significance", 
-               bty = "n", cex = cex, text.font = 1)
-      }      
-      
-    }
-    else{
-      if(i==1)
-        barplot(vals,col = unlist(lapply(pval[,i], calc.cols)),
-                ylim = ylim, axes = FALSE, las = 2, cex.names = cex, 
-                cex.axis = cex, beside = TRUE)    
-      else
-        barplot(vals,col = unlist(lapply(pval[,i], calc.cols)), 
-                ylim = ylim, axes = FALSE, las = 2, cex.names = cex, 
-                cex.axis = cex, beside=TRUE, add=TRUE)         
-      
-    }
-    if(i < ncol(val))
-      par(new = TRUE)
-  }
-}
+
 
 .plotSensMixed <- function(val, pval, title, mult = FALSE, sep = FALSE,
-                           cex = 2,                           
-                           interact.symbol = ":"){
-  ylim <- c(0, max(val) + 0.5)
-  
+                              cex = 2,                           
+                              interact.symbol = ":", ylab = ""){
   ## change the interaction symbol
   if(!interact.symbol == ":")      
     rownames(pval) <- rownames(val) <-  sapply(rownames(val), change.inter.symbol, 
-                                               interact.symbol)  
+                                               interact.symbol) 
+  
+  names.effs <- LETTERS[1:nrow(val)]
+  names.effs.legend <- paste(names.effs, collapse="")
+
+  dval <- as.data.frame(val)
+  dval$effs <- rownames(dval)
+  dval$effs_short <- names.effs
+  dval$abbreffs <- abbreviate(dval$effs)
+  suppressWarnings(dval <- melt(dval))
+  dpval <- as.data.frame(pval)
+  dpval$effs <- rownames(dpval)
+  suppressWarnings(dpval <- melt(dpval, variable_name = "pvalue"))
+  dval$pvalue <- unlist(lapply(dpval$value, calc.cols))
+  uniqueInitials <- unique(dval$effs_short)
+  initialShapes <- unlist(lapply(uniqueInitials, utf8ToInt))
+  dval$initialShapes <- unlist(lapply(dval$effs_short, utf8ToInt))
   
   
-  ## multiple plots
-  if(mult){
-    reduceNames <- TRUE
-    neff <- nrow(val)
-    if(sep){
-      layout(matrix(c(rep(2,2),3,rep(2,2),3,rep(2,2),3, rep(1,2),3), 4, 3, 
-                    byrow = TRUE), 
-             heights=c(0.4, 1 , 1.4), widths = c(2,2,4.3))
-      reduceNames <- FALSE
-    }else{
-      if(neff < 2)
-        layout( matrix(1:2, 1, 2, byrow=TRUE)) 
-      else if(neff < 4)
-        layout(matrix(1:4, 2, 2, byrow=TRUE))            
-      else if(neff < 5)
-        layout(cbind(matrix(1:4, 2, 2, byrow=TRUE), 5:6),
-               heights=c(1, 1)) 
-      else if(neff < 7)
-        layout(cbind(matrix(1:6, 3, 2, byrow=TRUE), 7:9))   
-      else if(neff < 10)
-        layout(cbind(matrix(1:9, 3, 3, byrow=TRUE), 10:12))  
-    }
-    
-    for(eff in rownames(pval)){
-      if(sep){
-        plot.new()
-        .plotBars(val[eff, , drop=FALSE], pval[eff, , drop=FALSE], 
-                  title = eff, plotLegend = FALSE, 
-                  plotLetters = FALSE, reduceNames = reduceNames, cex = cex, 
-                  cex.main = cex - 0.7, ylim = ylim)
-        plot.new()
-        legend("right", c("ns","p < 0.05", "p < 0.01", "p < 0.001"), pch=15, 
-               col=c("grey","yellow","orange","red"), title="Significance", 
-               bty="n", cex = cex - 0.5, text.font=1)
-      }
-      else{
-        .plotBars(val[eff, , drop=FALSE], pval[eff, , drop=FALSE], 
-                  title = eff, plotLegend = FALSE, 
-                  plotLetters = FALSE, reduceNames = reduceNames, cex = cex, 
-                  cex.main = cex - 0.7, ylim = ylim)
-      }      
-    }
-    if(!sep){
-      plot.new()
-      legend("right", c("ns","p < 0.05", "p < 0.01", "p < 0.001"), pch=15, 
-             col=c("grey","yellow","orange","red"), title="Significance", 
-             bty="n", cex = cex - 0.5, text.font=1)
-    }        
-  }else{
-    layout(matrix(c(rep(2,2),3,rep(2,2),3,rep(2,2),3, rep(1,2),3), 4, 3, 
-                  byrow = TRUE), 
-           heights=c(0.4, 1 , 1.4), widths = c(2,2,4.3))
-    names.effs <- LETTERS[1:nrow(val)]
-    names.effs.legend <- paste(names.effs, collapse="")
-    
-    plot.new()
-    .plotBars(val, pval, title = title, 
-              plotLegend = TRUE, plotLetters = TRUE, reduceNames = FALSE, 
-              cex = cex, cex.main = cex - 0.2, ylim = ylim,
-              names.effs = names.effs, 
-              names.effs.legend = names.effs.legend)
+  
+  
+  changelabs <- function(variable, value){
+    return(effsnames[value])
   }
+    
+  variable <- value <- pvalue <- effsnames <- effs <- NULL
+  
+  p1 <- ggplot(dval, aes(x=variable, y = value, fill = pvalue, group = effs)) + 
+    geom_bar(position = "dodge", stat = "identity")  + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4), 
+          axis.title.x=element_blank(), 
+          axis.title.y = element_text(size = rel(1.4)), 
+          axis.text = element_text(size = rel(1)), 
+          legend.text = element_text(size = rel(1)), 
+          legend.title = element_text(size = rel(1)))  + 
+    scale_fill_manual(values  = c(  "NS" = "grey", "p-value < 0.01" = "orange", 
+                                    "p-value < 0.05" = "yellow", 
+                                    "p-value < 0.001" = "red"), 
+                      name="Significance") + ylab(ylab)
+  
+  if(!mult)
+    return(p1 + geom_point(aes(shape = effs), fill = NA, 
+                           position = position_dodge(width = 0.9, height = 10), 
+                           vjust=-0.25, size = rel(5)) + 
+             scale_shape_manual(values = initialShapes, name = "Effects"))
+  else
+    return(p1 + facet_wrap( ~ effs, as.table = FALSE))    
+
 }
+
 
 .changeConsmixedOutputForDoc <- function(table, name.pval){  
   table[, name.pval] <- gsub("<", "&lt ", table[, name.pval])
@@ -268,35 +145,57 @@ change.inter.symbol <- function(x, interact.symbol){
 }
 
 ## output for the sensmixed
-.createDocOutputSensmixed <- function(x, file = NA, bold = FALSE, append = TRUE){
-  colnames.out.rand <- rownames(x$rand$Chi)
-  names <- colnames(x$rand$Chi)
-  tr_rand <- vector("list", length(colnames.out.rand))
+.createDocOutputSensmixed <- function(x, file = NA, bold = FALSE, append = TRUE, 
+                                      type = "html", typeEffs = 1){
   
-  for(i in 1:length(colnames.out.rand)){       
-    tr_rand[[i]] <- createTexreg(
-      coef.names = names, se=x$rand$Chi[i,],
-      coef = x$rand$Chi[i,],
-      pvalues = x$rand$pvalueChi[i,], isRand=TRUE    
-    )     
-  } 
+  if(typeEffs == 1 || typeEffs ==4){
+    colnames.out.rand <- rownames(x$rand$Chi)
+    names <- colnames(x$rand$Chi)
+    tr_rand <- vector("list", length(colnames.out.rand))
+    
+    for(i in 1:length(colnames.out.rand)){       
+      tr_rand[[i]] <- createTexreg(
+        coef.names = names, se=x$rand$Chi[i,],
+        coef = x$rand$Chi[i,],
+        pvalues = x$rand$pvalueChi[i,], isRand=TRUE    
+      )     
+    } 
+    caption.rand = "Likelihood ration test for the random effects"
+  }
+  else{
+    caption.rand = ""
+    colnames.out.rand <- ""
+    tr_rand = NULL
+  }
+    
+  
   
   
   ## output for the fixed effects
-  colnames.out.fixed <- rownames(x$fixed$Fval)
-  names <- colnames(x$fixed$Fval)
-  tr <- vector("list", length(colnames.out.fixed))
-  
-  for(i in 1:length(colnames.out.fixed)){       
-    tr[[i]] <- createTexreg(
-      coef.names = names, se=x$fixed$Fval[i,],
-      coef = x$fixed$Fval[i,],
-      pvalues = x$fixed$pvalueF[i,],
-      isRand=FALSE
-    )     
+  if(typeEffs == 2 || typeEffs == 4){
+    colnames.out.fixed <- rownames(x$fixed$Fval)
+    names <- colnames(x$fixed$Fval)
+    tr <- vector("list", length(colnames.out.fixed))
+    
+    for(i in 1:length(colnames.out.fixed)){       
+      tr[[i]] <- createTexreg(
+        coef.names = names, se=x$fixed$Fval[i,],
+        coef = x$fixed$Fval[i,],
+        pvalues = x$fixed$pvalueF[i,],
+        isRand=FALSE
+      )     
+    }
+    caption.fixed = "F-test for the fixed effects"
   }
+  else{
+    caption.fixed = ""
+    colnames.out.fixed <- ""
+    tr <- NULL
+  }
+        
   
-  if("scaling" %in% names(x)){
+  
+  if(("scaling" %in% names(x)) && (typeEffs == 3 || typeEffs == 4)){
     ## output for the scaling  effects if presented
     colnames.out.scaling <- rownames(x$scaling$FScaling)
     caption.scaling <- "F-test for the scaling effects"
@@ -311,21 +210,46 @@ change.inter.symbol <- function(x, interact.symbol){
         isRand=FALSE
       )     
     }
-    regres <- list(lrand = tr_rand, lfixed = tr, lscale = tr_scal)
+    if(typeEffs == 3){
+      regres <- list(lscale = tr_scal)
+      custom.model.names =list(
+        custom.model.names.scaling = colnames.out.scaling)
+      caption = list(caption.scaling = caption.scaling)
+    }
+    else{
+      regres <- list(lrand = tr_rand, lfixed = tr, lscale = tr_scal)
+      custom.model.names =list(custom.model.names.rand = colnames.out.rand,
+                               custom.model.names.fixed = colnames.out.fixed,
+                               custom.model.names.scaling = colnames.out.scaling)
+      caption = list(caption.rand = caption.rand,
+                     caption.fixed = caption.fixed,
+                     caption.scaling = caption.scaling)
+    }
   }
   else{
-    regres <- list(lrand = tr_rand, lfixed = tr)
-    colnames.out.scaling <- NULL
-    caption.scaling <- NULL
-  }
-  
-  #  wdGet()
-  #  funny<-function(){
-  #    c <- plot(x, mult = TRUE)
-  #    print(c)
-  #  }
-  #  wdPlot(plotfun=funny,method="bitmap", height = 10 , width = 10)
-  #  
+    if(typeEffs == 3)
+      stop("There is no Scaling effect in the output")
+    if(typeEffs == 1){
+      custom.model.names =list(
+        custom.model.names.rand = colnames.out.rand)
+      caption = list(caption.rand = caption.rand)
+      regres <- list(lrand = tr_rand)
+    }
+    if(typeEffs == 2){
+      regres <- list(lfixed = tr)
+      custom.model.names =list(
+        custom.model.names.fixed = colnames.out.fixed)
+      caption = list(caption.fixed = caption.fixed)
+    }
+    if(typeEffs == 4){
+      regres <- list(lrand = tr_rand, lfixed = tr)
+    custom.model.names =list(custom.model.names.rand = colnames.out.rand,
+                             custom.model.names.fixed = colnames.out.fixed)
+    caption = list(caption.rand = caption.rand,
+                   caption.fixed = caption.fixed)
+    }
+  }  
+   
   
   if(bold)
     stars <- numeric(0)
@@ -333,49 +257,19 @@ change.inter.symbol <- function(x, interact.symbol){
     stars <- c(0.001, 
                0.01, 0.05)
   
-  custom.model.names =list(
-    custom.model.names.rand = colnames.out.rand, 
-    custom.model.names.fixed = colnames.out.fixed,
-    custom.model.names.scaling = colnames.out.scaling)
-  caption = list(
-    caption.rand="Likelihood ration test for the random effects",
-    caption.fixed="F-test for the fixed effects",
-    caption.scaling = caption.scaling)
-  htmlreg(regres, 
-          file = file, inline.css = FALSE, 
-          doctype = FALSE, html.tag = FALSE, head.tag = FALSE, 
-          body.tag = FALSE,
+  
+  
+  if(type == "html")
+    htmlreg(regres, 
+          file = file, inline.css = TRUE, 
+          doctype = FALSE, html.tag = TRUE, head.tag = TRUE, 
+          body.tag = TRUE,
           custom.model.names = custom.model.names, 
           caption = caption, caption.above = TRUE, bold=bold,
           stars=stars, append = append)
-  
-  
-#   if(!is.null(x$post_hoc)){
-#     if("scaling" %in% names(x))
-#       name.pval <- "p.value"
-#     else
-#       name.pval <- "p-value"
-#     #names(x$post_hoc)
-#     if(!is.na(file))
-#       sink(file = file, append = append)
-#     for(i in 1:length(x$post_hoc)){
-#       x$post_hoc[[i]][,  name.pval] <- format.pval(x$post_hoc[[i]][, name.pval],
-#                                                    digits=3, eps=1e-3)
-#       x$post_hoc[[i]] <- .changeConsmixedOutputForDoc(x$post_hoc[[i]],  name.pval)
-#       if("scaling" %in% names(x))
-#         xt.posthoc <- xtable(x$post_hoc[[i]], align="lccccc",
-#                              display=c("s","f", "f", "d", "f", "s"))
-#       else
-#         xt.posthoc <- xtable(x$post_hoc[[i]], align="lccccccc",
-#                              display=c("s","f", "f", "d", "f", "f", "f", "s"))
-#       caption(xt.posthoc) <- 
-#         paste("Post-hoc for the attribute ", names(x$post_hoc)[i])
-#       print(xt.posthoc, caption.placement="top", table.placement="H",
-#             sanitize.text.function=function(x){x}, size="\\small", type = "html")
-#     }
-#     if(!is.na(file))
-#       sink()
-#   }
+  if(type == "latex")
+    return(texreg(regres))
+    
   
 }
 
@@ -408,8 +302,7 @@ change.inter.symbol <- function(x, interact.symbol){
   else
     xt.anova <- xtable(x$anova.table, align="lcccccc",
                        display=c("s","f", "f", "d", "f", "f","s"))
-  caption(xt.anova) <- 
-    "F-tests for the fixed-effects and their order of elimination"
+  caption(xt.anova) <- "F-tests for the fixed-effects and their order of elimination"
   
   
   print(xt.anova, caption.placement="top", table.placement="H",
@@ -422,8 +315,7 @@ change.inter.symbol <- function(x, interact.symbol){
     .changeConsmixedOutputForDoc(x$diffs.lsmeans.table, "p-value")    
   xt.lsmeans <- xtable(x$diffs.lsmeans.table, align="lccccccc",
                        display=c("s","f", "f", "f", "f", "f","f", "s"))
-  caption(xt.lsmeans) <- 
-    "Differences of Least Squares Means"
+  caption(xt.lsmeans) <- "Differences of Least Squares Means"
   print(xt.lsmeans, caption.placement="top", table.placement="H",
         sanitize.text.function=function(x){x}, size="\\small", type = "html")
   sink()

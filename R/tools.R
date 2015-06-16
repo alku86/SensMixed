@@ -4,6 +4,7 @@ isbalanced <- function(data)
   suppressWarnings(!is.list(replications(~ . , data)))
 }
 
+## PER'S FUNCTION MAMANALYSIS.R
 runMAM <- function(data, Prod_effects, individual, attributes, adjustedMAM=FALSE, 
                    alpha_conditionalMAM=1){
   if(length(attributes) < 2)
@@ -29,6 +30,7 @@ runMAM <- function(data, Prod_effects, individual, attributes, adjustedMAM=FALSE
 
 
 ### function checks  if there are zero cells in a factor term
+## UNUSED since version 2.0-7
 checkZeroCell <- function(data, factors)
 {
   t <- table(data[, match(factors, names(data))])
@@ -61,8 +63,7 @@ checkNumberInteract <- function(data, factors)
     warning.str <- "Number of levels for "
     if(length(factors) > 1)
       warning.str <- c(warning.str," interaction ", sep=" ")
-    #for(i in length(factors))
-    #    warning.str <- paste(warning.str, factors[i],sep=" ")  
+ 
     warning.str <- c(warning.str, paste(factors,collapse=":"), 
                      " is more or equal to the number of observations in data", 
                      sep=" ")    
@@ -84,15 +85,19 @@ convertToFactors <- function(data, facs)
 }
 
 ## create formula with only fixed terms
-fixedFormula <- function(fmodel)
+fixedOrRandFormula <- function(fmodel, isfixed = TRUE)
 {
   terms.fm <- attr(terms.formula(fmodel),"term.labels")
   ind.rand.terms <- which(unlist(lapply(terms.fm,
-                                        function(x) substring.location(x, "|")$first))!=0)
+                                        function(x) 
+                                          substring.location(x, "|")$first))!=0)
   terms.fm[ind.rand.terms] <- unlist(lapply(terms.fm[ind.rand.terms],
                                             function(x) paste("(",x,")",sep="")))
   fm <- paste(fmodel)
-  fm[3] <- paste(terms.fm[-ind.rand.terms],collapse=" + ")
+  if(isfixed)
+    fm[3] <- paste(terms.fm[-ind.rand.terms], collapse=" + ")
+  else
+    fm[3] <- paste(terms.fm[ind.rand.terms], collapse=" + ")
   if(fm[3]=="")
     fo <- as.formula(paste(fm[2],fm[1],1, sep=""))
   else
@@ -102,9 +107,10 @@ fixedFormula <- function(fmodel)
 
 
 .createFormulaAnovaLsmeans <- function(mf.final, mf.final.lsm, random, fixed,
-                                       mult.scaling, data){
+                                       mult.scaling, data, oneway_rand = TRUE){
   
-  ff <- fixedFormula(mf.final)
+  ff <- fixedOrRandFormula(mf.final)
+  fr <- fixedOrRandFormula(mf.final.lsm, isfixed = FALSE)
   ## maximal order of interaction
   max.inter <- max(attr(terms(ff), "order")) 
   scaling.private.adds <- NULL
@@ -113,7 +119,7 @@ fixedFormula <- function(fmodel)
     for (i in 1:length(scaling.private.adds)){
       assign(scaling.private.adds[i], rep(1, nrow(data)) )
     }
-    #data[, scaling.private.adds] <- rep(1, nrow(data))     
+    data[, scaling.private.adds] <- rep(1, nrow(data))     
   }
     
   
@@ -125,14 +131,7 @@ fixedFormula <- function(fmodel)
              scale(predict(lm(as.formula(paste(ff[2], ff[1], namesProd)), 
                               data=data)), scale=FALSE))
     }
-#     lapply(fixed$Product, function(argument) 
-#       assign(paste("x.scaling.private", argument, sep=""),
-#              scale(predict(lm(as.formula(paste(ff[2], ff[1], argument)), 
-#                               data=data)), scale=FALSE))) 
-#     data[, prods] <- lapply(paste(ff[2], ff[1], fixed$Product), 
-#                             function(formulas)  
-#                               scale(predict(lm(as.formula(formulas), 
-#                                                data=data)), scale=FALSE) )
+
   }
   
   # create x out of predicted values from lm
@@ -160,13 +159,17 @@ fixedFormula <- function(fmodel)
                                   collapse=" + "), sep =" + ")
   }
   else{
+    if(oneway_rand)
+      rightff <- paste(paste(ff)[3], paste(fr)[3], sep = " + ")
+    else
+      rightff <- fm[3]
     if(!is.null(scaling.private.adds))
-      fm[3] <- paste(fm[3], paste(rnd.fo, 
+      fm[3] <- paste(rightff, paste(rnd.fo, 
                                 "x.scaling.private", 
                                 paste(scaling.private.adds, collapse = ":"),
                                 sep=":"), sep=" + ")
     else
-      fm[3] <- paste(fm[3], paste(rnd.fo, 
+      fm[3] <- paste(rightff, paste(rnd.fo, 
                                   "x.scaling.private",
                                   sep=":"), sep=" + ")
   }
@@ -174,33 +177,23 @@ fixedFormula <- function(fmodel)
  
   fo.anova <- as.formula(paste(fm[2], fm[1], fm[3], sep=""))    
   
-  ## for lsmeans
-  fm.lsm <- paste(mf.final.lsm)
-  if(is.list(random))
-    fm.lsm[3] <- paste(fm.lsm[3],  paste(random$individual, 
-                                         "x.scaling.private", sep=":"),
-                       "x.scaling.private", sep=" + ")
-  else
-    fm.lsm[3] <- paste(fm.lsm[3],  paste(random, "x.scaling.private", sep=":"),
-                       "x.scaling.private", sep=" + ")
-  fo.lsm <- as.formula(paste(fm.lsm[2], fm.lsm[1], fm.lsm[3], sep=""))   
-  
-  return(list(fo.anova = fo.anova, fo.lsm = fo.lsm, data = data))
-  
+return(list(fo.anova = fo.anova, data = data))
 } 
 
 ### Create an lmer model
 createLMERmodel <- function(structure, data, response, fixed, random, corr, 
                             MAM = FALSE, mult.scaling = FALSE, 
-                            calc_post_hoc = FALSE)
+                            calc_post_hoc = FALSE,  oneway_rand = TRUE)
 { 
   
   #construct formula for lmer model    
   mf.final <- createFormulaAllFixRand(structure, data, response, fixed, random, 
                                       corr)    
+  
+  
   ## if MAM needs to be constructed
   if(MAM){
-    if(length(fixed$Product)>1){
+    if(length(fixed$Product) > 1){
       data$prod <- interaction(data[, fixed$Product])
       mf.final.lsm <- createFormulaAllFixRand(structure, data, response, 
                                               list(Product="prod", 
@@ -210,78 +203,32 @@ createLMERmodel <- function(structure, data, response, fixed, random, corr,
       mf.final.lsm <- mf.final
     }
     
+    
+    
     ## create formulas for anova and lsmeans   
     ############################################################################
     fo <- .createFormulaAnovaLsmeans(mf.final, mf.final.lsm, random, fixed,
-                                     mult.scaling, data)
-    
-    ## create models for anova and lsmeans
-    ############################################################################
+                                     mult.scaling, data, 
+                                     oneway_rand = oneway_rand)
     
     ## for anova
-    model.anova <- lmerTest::lmer(fo$fo.anova, data)
-    #anova(model.anova, type=1) ## TODO: compare with SAS
-    #st.anova <- step(model.anova, lsmeans.calc=FALSE, difflsmeans.calc=FALSE, 
-    #reduce.fixed=FALSE)
-    
-    ## change contrasts for lsmeans to be contr.sum
-    if(length(fixed$Product)==1){
-      mm <- model.matrix(model.anova)
-      l <- attr(mm, "contrasts")
-      contr <- l
-      names.facs <- names(contr)
-      l <- as.list(rep("contr.sum", length(names.facs)))
-      names(l) <- names(contr)
-    }else{
-      l <- as.list(rep("contr.sum", 2))
-      if(is.list(random))
-        names(l) <- c("prod", random$individual) 
-      else
-        names(l) <- c("prod", random) 
-    }   
-    
-    ## model for lsmeans
-    if(calc_post_hoc){
-      model.lsmeans <- lmerTest::lmer(fo$fo.lsm, data, contrasts = l)
-      return(list(model.anova = model.anova, model.lsmeans = model.lsmeans))
-    }
-    else return(list(model.anova = model.anova))
-    #summaryBy(Coloursaturation ~ prod , data)
-    #st.lsmeans <- step(model.lsmeans, lsmeans.calc=FALSE, difflsmeans.calc=FALSE, reduce.fixed=FALSE)
-    #newm <- lmerTest::lmer(formula(st.lsmeans$model), data=data, contrasts=l)
-    #lsmeans::lsmeans(object=model.lsmeans,  
-    #                 pairwise ~ prod)
-    #if(length(fixed$Product)==1)
-    #  eval(substitute(lsmeans::lsmeans(object=model.lsmeans,  
-    #                                 pairwise ~ prod), 
-    #                                 list(prod=as.name(fixed$Product))))
-    #else
-      #eval(substitute(lsmeans::lsmeans(object=model.lsmeans,  
-      #                               pairwise ~ prod), 
-      #              list(prod=as.name(paste(fixed$Product, collapse=":")))))
-    
-   #lsmeans::lsmeans(model.lsmeans, pairwise ~ TVset:Picture)
+    modelMAM <- lmerTest::lmer(fo$fo.anova, fo$data)
+
+    return(modelMAM = modelMAM)   
   }else{
     model <- lmerTest::lmer(mf.final, data) 
     return(model)
   }
-  
     
-  #model <- as(model,"mer")
-  #model <- update(model)
-  
-  #mf.final <- update.formula(formula(model),formula(model))
-  #model <- eval(substitute(lmer(mf.final, data=data),list(mf.final=mf.final)))
-  #model <- update(model, data=data ,REML=TRUE)
-  
-  return(model)
 }
 
 
 # check an interaction term for validity
 checkComb <- function(data, factors)
 {
-  return(checkNumberInteract(data,factors) || checkZeroCell(data, factors))
+  ## removed checkZeroCell in 2.0-7 version
+  ## since Rune has fixed an issue with rank deficiency
+  return(checkNumberInteract(data,factors))# || checkZeroCell(data, factors))
 }
 
 .fixedrand <- function(model)
@@ -409,7 +356,8 @@ getPureInter <- function(lsm.table, anova.table, eff){
     contained.effs <- contained.effs[ind.inteffs]
   }
 
-  p1 <- pure.inter.lsm[ , 1:which(colnames(pure.inter.lsm)=="Estimate") ]
+  p1 <- pure.inter.lsm[ , 1:which(colnames(pure.inter.lsm)=="Estimate"), 
+                       drop = FALSE]
   for(ceff in contained.effs){
     p1  <- merge(p1, 
                  lsm.table[rows.lsm == ceff, 
@@ -448,72 +396,69 @@ getPureInter <- function(lsm.table, anova.table, eff){
   rows <- sapply(rownames(dlsm.table), 
                  function(x) strsplit(x, " ")[[1]][1]) 
   anova.table$dprimeav <- rep(1, nrow(anova.table))
+  num.scale <- which(grepl("Scaling", rownames(anova.table)) == TRUE)
+  if(length(num.scale) > 0)
+    anova.table.noscaleff <- anova.table[-num.scale,]
+  else
+    anova.table.noscaleff <- anova.table
+    
   
-  for(eff in rownames(anova.table)){
-    #lsm <- lsmeans::.old.lsmeans( model , pairwise ~ Track:SPL:Car)
-    #dp <- lsm[[2]][, 1]/sigma
+  for(eff in rownames(anova.table.noscaleff)){
     
-    
-    ## for interaction  - 
-    #eff <- attr(terms(model),"term.labels")[3]
-    
-    #lsm <- lsmeans::.old.lsmeans(model,  as.formula(paste("pairwise ~ ", eff)), 
-    #                             lf = TRUE)
-    #fixef()
-    #split.eff  <-  unlist(strsplit(eff,":"))
-    #if( length(split.eff) > 1 ){
       
-    pureinter <- getPureInter(lsm.table, anova.table, eff)
+    pureinter <- getPureInter(lsm.table, anova.table.noscaleff, eff)
     puredifs <- .calcPureDiffs(pureinter) 
       
       
     #all.equal(sum(pure.inter.pairs^2)/(12), sum(puredifs^2)/(12), tol = 1e-4)
     dp <- puredifs / sigma      
     av.dp <- sqrt(sum(dp^2)/(nrow(dp)*(nrow(dp)-1)/2))
-    #}
-    #else{
-     # lsm.eff <- getPureInter(lsm.table, eff)
-      
-      #dp <- dlsm.table[which(rows %in% eff), 1] / sigma
-      #av.dp <- sqrt(sum(dp^2)/length(dp))
-      
-    #}
+   
     anova.table[eff, "dprimeav"] <- av.dp 
   }
+  anova.table <- anova.table[, 
+                             c("Sum Sq", "Mean Sq", "NumDF", "DenDF", "F.value",
+                               "dprimeav", "Pr(>F)")]
   anova.table
   
-  #m.bo <- lme4::lmer(att1 ~ Track*SPL*Car + (1|Assessor) + (1|SPL:Assessor) + 
-  #                     (1|Track:SPL:Assessor) + (1|Car:SPL:Assessor), 
-  #                   data = sound_data_balanced)
-  #lsm <- lsmeans::.old.lsmeans(m.bo,  pairwise ~ Track:SPL:Car, lf = TRUE)
-  #lsm[[1]] %*% fixef(model)
-  #with(sound_data_balanced, tapply(att1, factor(Track:SPL:Car), mean))
+ 
 }
 
 
-## step function for NO MAM
-.stepAllAttrNoMAM <- function(new.resp.private.sensmixed, 
-                              model = model,
+
+.stepAllAttrNoMAM <- function(attr, product_structure, error_structure,
+                              data, Prod_effects, random,
                               reduce.random = reduce.random, 
                               alpha.random = alpha.random, 
                               alpha.fixed = alpha.fixed, 
-                              calc_post_hoc = calc_post_hoc){
-  assign("new.resp.private.sensmixed", new.resp.private.sensmixed, 
-         envir=environment(formula(model)))
-  suppressMessages(m <- refit(object=model, newresp = new.resp.private.sensmixed, 
-             rename.response = TRUE))
+                              calc_post_hoc = calc_post_hoc,
+                              keep.effs){
+  m <- suppressMessages(createLMERmodel(structure =
+                                          list(product_structure = 
+                                                 product_structure,
+                                               error_structure = 
+                                                 error_structure), 
+                                        data = data, response = attr,
+                                        fixed = list(Product = Prod_effects,
+                                                     Consumer = NULL),
+                                        random = random, corr = FALSE,
+                                        calc_post_hoc = calc_post_hoc))
+  #m <- elimZeroVar(m)
   suppressMessages(st <- step(m, reduce.fixed = FALSE, 
                              reduce.random = reduce.random, 
                              alpha.random = alpha.random, 
                              alpha.fixed = alpha.fixed, 
                              lsmeans.calc = TRUE,
-                             difflsmeans.calc = calc_post_hoc))
+                             difflsmeans.calc = calc_post_hoc,
+                             keep.effs = keep.effs))
   
   if(calc_post_hoc)
     st$anova.table <- .calcAvDprime(st$model, st$anova.table, 
-                                    st$diffs.lsmeans.table, st$lsmeans.table)    
+                                    st$diffs.lsmeans.table, st$lsmeans.table)
+
   st
 }
+
 
 ## step function for MAM
 .stepAllAttrMAM <- function(attr, product_structure, error_structure,
@@ -522,64 +467,85 @@ getPureInter <- function(lsm.table, anova.table, eff){
                             alpha.random = alpha.random, 
                             alpha.fixed = alpha.fixed, 
                             mult.scaling = mult.scaling, 
-                            calc_post_hoc = calc_post_hoc){
-  model.init <- suppressMessages(createLMERmodel(structure = 
-                                  list(product_structure = product_structure, 
-                                       error_structure = error_structure), 
-                                  data = data, response = attr,
-                                  fixed = list(Product = Prod_effects, 
-                                             Consumer=NULL),
-                                random = random, corr = FALSE, MAM = TRUE,
-                                mult.scaling = mult.scaling, 
-                                calc_post_hoc = calc_post_hoc))
-  model.an <- model.init$model.anova
-  model.lsm <- model.init$model.lsmeans
+                            calc_post_hoc = calc_post_hoc,
+                            keep.effs, oneway_rand = oneway_rand){
+  modelMAM <- suppressMessages(createLMERmodel(structure = 
+                                                   list(product_structure =
+                                                          product_structure, 
+                                                        error_structure =
+                                                          error_structure), 
+                                                 data = data, response = attr,
+                                                 fixed = list(Product = 
+                                                                Prod_effects, 
+                                                              Consumer=NULL),
+                                                 random = random, corr = FALSE,
+                                                 MAM = TRUE,
+                                                 mult.scaling = mult.scaling, 
+                                                 calc_post_hoc = calc_post_hoc,
+                                                 oneway_rand = oneway_rand))
   
+  modelMAM  <- elimZeroVar(modelMAM)
 
-  st <- suppressMessages(step(model.an, fixed.calc = FALSE))
+  
+  st <- suppressMessages(step(modelMAM, fixed.calc = FALSE,
+                              keep.effs = keep.effs, 
+                              reduce.random = reduce.random))
   rand.table <- st$rand.table
   
   if(reduce.random){
-    anova.table <- suppressMessages(anova(as(st$model, "merModLmerTest"), 
-                                          type = 1))
-    if(length(which(anova.table[, "Pr(>F)"] == "NaN") > 0))
-       anova.table <- suppressMessages(anova(as(st$model, "merModLmerTest"), 
-                                             type = 1, ddf="Kenward-Roger")) 
+    modelMAM <- as(st$model, "merModLmerTest")
+    anova.table <- suppressMessages(anova(modelMAM, type = 1))
   }
-  else{
-    anova.table <- suppressMessages(anova(model.an, type = 1))
-    if(length(which(anova.table[, "Pr(>F)"] == "NaN") > 0))
-       anova.table <- suppressMessages(anova(as(model.an, "merModLmerTest"), 
-                                             type = 1, ddf="Kenward-Roger")) 
-  }
+  else
+    anova.table <- suppressMessages(anova(modelMAM, type = 1))
+  
   anova.table <- .renameScalingTerm(anova.table, Prod_effects) 
- 
-  if(calc_post_hoc){
-    if(length(Prod_effects) > 1)
-      lsmeans.table <- lsmeans::.old.lsmeans( model.lsm, pairwise ~ prod)
-    else 
-      lsmeans.table <-  eval(substitute(lsmeans::.old.lsmeans(object=model.lsm, 
-                                                         pairwise ~ prod), 
-                                        list(prod=as.name(Prod_effects)))) 
-    return(list(anova.table=anova.table, rand.table=rand.table,
-                lsmeans.table=lsmeans.table)) 
+  
+  if(calc_post_hoc){    
+    model <- .createModelFromMAM(modelMAM)
+    rho <- rhoInitLsmeans(model, modelMAM)
+    lsm.tab <- calcLSMEANS(model, data, rho, alpha = alpha.fixed, 
+                           lsmeansORdiff = TRUE)$summ.data
+    dlsm.tab <- calcLSMEANS(model, data, rho, alpha = alpha.fixed, 
+                            lsmeansORdiff = FALSE)$summ.data
+    anova.table <- .calcAvDprime(modelMAM, anova.table, 
+                                 dlsm.tab, lsm.tab)
+    return(list(anova.table = anova.table, rand.table = rand.table,
+                lsmeans.table = lsm.tab, diffs.lsmeans.table = dlsm.tab)) 
   }
- 
-  return(list(anova.table=anova.table, rand.table=rand.table)) 
+  
+  return(list(anova.table = anova.table, rand.table = rand.table)) 
 }
 
-
-
-
-#check if there are correlations between intercepts and slopes
-checkCorr <- function(model)
-{
-  corr.intsl <- FALSE
-  lnST <- length(getME(model, "ST"))
-  for(i in 1:lnST)
-  {    
-    if(nrow(getME(model, "ST")[[i]])>1)
-      corr.intsl <- TRUE
-  } 
-  return(corr.intsl) 
+.fixedrand <- function(model)
+{  
+  effs <- attr(terms(formula(model)), "term.labels")
+  neffs <- length(effs)
+  randeffs <- effs[grep(" | ", effs)]
+  randeffs <- sapply(randeffs, function(x) substring(x, 5, nchar(x)))
+  fixedeffs <- effs[!(effs %in% names(randeffs))]
+  return(list(randeffs=randeffs, fixedeffs=fixedeffs))
 }
+
+.getAssessor <- function(random){
+  if(is.list(random))
+    return(random$individual)
+  else
+    return(random)
+}
+
+.createModelFromMAM <- function(modelMAM){
+  fmodelMAM <- formula(modelMAM)
+  fm <- paste(fmodelMAM)
+  terms.fm <- attr(terms(fmodelMAM), "term.labels")
+  
+  is.scale <- grepl(":x.scaling", terms.fm)   
+
+  fmodel <- paste(fm[2],fm[1], paste(fm[3], paste(terms.fm[is.scale], 
+                                                  collapse = " - "), 
+                                     sep = " - "))
+  return(updateModel(modelMAM, fmodel, getREML(modelMAM), 
+              attr(model.matrix(modelMAM),"contrasts")))
+
+} 
+

@@ -9,7 +9,7 @@ save the tests for the random and fixed effects into a doc file
 for sensmixed or consmixed objects
 }
 \usage{
-saveToDoc(x, file = NA, bold = FALSE, append = TRUE)
+saveToDoc(x, file = NA, bold = FALSE, append = TRUE, type = "html", typeEffs = 1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -26,6 +26,16 @@ The default is FALSE
   \item{append}{
   logical. If TRUE, output will be appended to file; 
   otherwise, it will overwrite the contents of file.
+  }
+  \item{type}{
+  type of output as in xtable. Either "html" or "latex"
+  }
+  \item{typeEffs}{
+  one of the numbers in c(1,2,3,4). 
+  1: save results for the random effects in a table
+  2: save results for the fixed effects in a table
+  3: save results for the scaling effects in a table
+  4: save results for all effects in a table  
   }
 }
 

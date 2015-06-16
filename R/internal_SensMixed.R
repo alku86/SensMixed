@@ -3,15 +3,6 @@
 # for bug reports, help or feature requests.
 
 
-# # display version number and date when the package is loaded
-# .onAttach <- function(libname, pkgname) {
-#   desc  <- packageDescription(pkgname, libname)
-#   packageStartupMessage(
-#       'Version:  ', desc$Version, '\n', 
-#       'Date:     ', desc$Date, '\n',
-#       'Author:   ', 'Philip Leifeld (University of Konstanz)'
-#   )
-# }
 
 
 # function which reformats a coefficient with two decimal places
@@ -858,7 +849,4 @@ ciforce <- function(models, ci.force = rep(FALSE, length(models)),
   return(models)
 }
 
-# library("xtable")
-# s <- summary(lm.D9)
-# tab <- anova(lm.D9) #s[[3]][, 1]
-# xtable(tab)
+

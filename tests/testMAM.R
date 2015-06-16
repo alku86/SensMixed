@@ -1,15 +1,15 @@
 require(SensMixed)
-checkMAM <- FALSE
+checkMAM <- TRUE
 
 if(checkMAM){
-  ## ERROR: bug in MAManalysis: cannot calculate for more than 3 attributes
-  atts <- names(TVbo)[7:10]
-  res_MAM <- sensmixed(atts, Prod_effects=c("TVset"), 
+  ##
+  atts <- names(TVbo)[5:10]
+  res_MAM <- sensmixed(atts, Prod_effects = c("TVset"), 
                        individual="Assessor", data=TVbo, 
                        MAM_PER=TRUE)
   
   ## selecting only 3 attributes
-  atts <- names(TVbo)[7:9]
+  atts <- names(TVbo)[5:10]
   res <- sensmixed(atts, Prod_effects=c("TVset"), individual="Assessor", 
                    data=TVbo, MAM=TRUE, reduce.random=FALSE, 
                    calc_post_hoc = TRUE)
@@ -17,10 +17,24 @@ if(checkMAM){
   res_MAM <- sensmixed(atts, Prod_effects=c("TVset"), individual="Assessor", 
                        data=TVbo, MAM_PER=TRUE)
   
+  #####################################################
+  ## bug for Noise attribute - different with MAManalysis
+  TVbo$x <- rep(NA, nrow(TVbo))
+  x.prd <- scale(predict(lm(Noise ~ TVset, data=TVbo)), scale=FALSE)
+  notNA <- rownames(x.prd)
+  TVbo[notNA, "x"] <- x.prd
+  
+  m.noisemam <- lmer(Noise ~ TVset + x:Assessor +
+                            (1|Assessor) + (1|TVset:Assessor), data=TVbo )
+  all.equal(anova(m.noisemam, ddf="lme4")[,"F value"], 
+            anova(m.noisemam, type = 1)[, "F.value"])
+  #######################################################
+  
   TOL <- 1e-2
   for(i in 1:length(atts)){
     ## ERROR: different results for the Noise attribute
-    if(i==1)
+    ## because of Assessor:TVset std dev = 0
+    if(i==3)
       tools::assertError(stopifnot(all.equal(res_MAM[[3]][, , i][2:3,"F"], 
                                              c(res$fixed$Fval[, i],
                                                res$scaling$FScaling[, i]), 
@@ -33,6 +47,7 @@ if(checkMAM){
   
   
   TOL <- 1e-2
+  ## diff lsmeans agree
   for(i in 1:length(atts)){
     stopifnot(all.equal(res_MAM[[4]][, , i][1, 1], res$post_hoc[[i]][1, 1], tol=TOL, 
                         check.attributes = FALSE))
@@ -60,17 +75,20 @@ if(checkMAM){
   
   TOL <- 1e-1
   for(i in 1:length(atts)){
-    stopifnot(all.equal(res_MAM[[4]][, , i][1, 1], res$post_hoc[[i]][1, 1], tol=TOL, 
+    stopifnot(all.equal(res_MAM[[4]][, , i][1, 1], res$post_hoc[[i]][1, 1], 
+                        tol=TOL, 
                         check.attributes = FALSE))
-    stopifnot(all.equal(res_MAM[[4]][, , i][1, 2], res$post_hoc[[i]][2, 1], tol=TOL, 
+    stopifnot(all.equal(res_MAM[[4]][, , i][1, 2], res$post_hoc[[i]][2, 1], 
+                        tol=TOL, 
                         check.attributes = FALSE))
-    stopifnot(all.equal(res_MAM[[4]][, , i][3, 2], res$post_hoc[[i]][3, 1], tol=TOL, 
+    stopifnot(all.equal(res_MAM[[4]][, , i][3, 2], res$post_hoc[[i]][3, 1], 
+                        tol=TOL, 
                         check.attributes = FALSE))
   }
   
   ## check post-hoc for the multiway case
-  atts <- names(TVbo)[5:19]
-  res <- sensmixed(atts, Prod_effects=c("TVset", "Picture"), individual="Assessor",                  
-                   data=TVbo, MAM=TRUE, calc_post_hoc = TRUE)
+#   atts <- names(TVbo)[5:19]
+#   res <- sensmixed(atts, Prod_effects=c("TVset", "Picture"), individual="Assessor",                  
+#                    data=TVbo, MAM=TRUE, calc_post_hoc = TRUE)
   
 }

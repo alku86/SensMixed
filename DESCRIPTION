@@ -1,18 +1,22 @@
 Package: SensMixed
 Type: Package
-Title: Mixed effects modelling for sensory and consumer data
-Version: 2.0-6
-Date: 2013-09-10
+Title: Tests in Linear Mixed Effects Models
+Version: 2.0-8
 Authors@R: c(person("Alexandra", "Kuznetsova", role = c("aut", "cre"),
                           email = "alku@dtu.dk"),
                    person("Per", "Bruun Brockhoff", role = c("aut", "ths")),
                    person("Rune", "Haubo Bojesen Christensen", role = "aut"))
-Author: Alexandra Kuznetsova, Per Bruun Brockhoff, Rune Haubo Bojesen
-        Christensen
 Maintainer: Alexandra Kuznetsova <alku@dtu.dk>
-Depends: stats, lmerTest
-Imports: Hmisc, gplots,  parallel, plyr, lsmeans, doBy, xtable
-Description: The package provides with functions that facilitate analysis of Sensory as well as Consumer data
+Depends: stats, methods, lmerTest
+Imports: Hmisc, parallel, plyr, doBy, xtable,
+         reshape2, ggplot2, shiny, googleVis, shinyBS, lme4
+Suggests: pbkrtest
+Description:  Functions that facilitate analysis of 
+              Sensory as well as Consumer data within a mixed effects model 
+              framework are provided. The so-called mixed assessor models, 
+              that correct for the scaling effect are implemented.
+              The generation of the d-tilde plots forms part of the package.
+LazyData: TRUE
 License: GPL (>= 2)
-
+Repository: CRAN
 

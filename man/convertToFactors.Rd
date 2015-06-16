@@ -28,10 +28,10 @@ Alexandra Kuznetsova
 }
 \examples{
 library(SensMixed)
-data(carrots)
-str(carrots)
+data(ham)
+str(ham)
 
-carrots <- convertToFactors(carrots, c("Consumer", "Income", "Homesize"))
+ham <- convertToFactors(ham, c("Gender"))
 
-str(carrots)
+str(ham)
 }
