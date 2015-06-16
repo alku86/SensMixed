@@ -15,7 +15,8 @@ shinyUI(fluidPage(
           uiOutput("AttrUI"),
           #submitButton("Run Analysis")
          # actionButton("goButton", "Run Analysis"),
-        bsActionButton("goButton", label = "Run Analysis", style = "primary")
+        bsButton("goButton", label = "Run Analysis", type = "action", 
+                 style = "primary")
     ),
     column(8,
     tabsetPanel(
