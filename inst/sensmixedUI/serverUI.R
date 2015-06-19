@@ -58,12 +58,15 @@ tabPanel.model <- function(){
                      bsCollapsePanel("Help error structure", 
                                      tableOutput("helperrstruct"), 
                                      id="col2", value="test2"),
-                     selectInput('MAM', 'Correct for scaling', c("No" = FALSE, 
-                                                                 "Yes" = TRUE)),
+                    selectInput('oneway_rand', 'One-way product random part', 
+                                c( "No" = FALSE, "Yes" = TRUE)),
+                    bsCollapsePanel("Help one-way product random part", 
+                                    tableOutput("helponeway"), 
+                                    id="col2", value="test2"),
+                     selectInput('MAM', 'Correct for scaling', c("Yes" = TRUE, 
+                                                                 "No" = FALSE)),
                      selectInput('multMAM', 'Mult-way scaling', c("No" = FALSE, 
-                                                                  "Yes" = TRUE)),
-                     selectInput('oneway_rand', 'One-way product MAM', 
-                                 c("Yes" = TRUE, "No" = FALSE))                  
+                                                                  "Yes" = TRUE))                  
     ))
 }
 

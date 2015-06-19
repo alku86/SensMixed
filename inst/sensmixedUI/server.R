@@ -166,6 +166,15 @@ shinyServer(function(input, output, session) {
     helperrstruct[3,1] <- "assessor and replicate effect and interaction between them and interaction between them and Product_effects"
     return(xtable(helperrstruct))
   })
+  
+  output$helponeway <- renderTable({
+    helponeway  <- matrix(NA, nrow = 2, ncol = 1)
+    rownames(helponeway) <- c("No", "Yes")
+    colnames(helponeway) <- "Explanations"
+    helponeway[1,1] <- "considers multi-way product structure in the random part"
+    helponeway[2,1] <- "considers just one product factor in the random part, where the product factor is chosen as the overall product factor combining each product-combination into a single factor with as many levels as there are different product combinations"    
+    return(xtable(helponeway))
+  })
    
 
   ## here the server part of the UI is sourced
