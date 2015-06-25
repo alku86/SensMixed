@@ -1,4 +1,14 @@
 # server.R
+
+library(SensMixed)
+library(shiny)
+library(googleVis)
+library(shinyBS)
+library(ggplot2)
+library(Hmisc)
+library(xtable)
+
+
 shinyServer(function(input, output, session) {
   tags$style(type="text/css", ".tab-content { overflow: visible; }")
   tags$head(
