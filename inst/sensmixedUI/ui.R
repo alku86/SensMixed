@@ -24,7 +24,8 @@ shinyUI(fluidPage(
                h4("Choose data"),
                selectInput('uploaddata', '', 
                            c("Read CSV file from local drive" = 1, 
-                             "TVbo data" = 2, "Ham data" = 3)),
+                             "TVbo data" = 2, "Ham data" = 3), selected = 2), 
+               value = 0,
                uiOutput("UploadUI")
       ),
       tabPanel("Plot output",
@@ -87,7 +88,8 @@ shinyUI(fluidPage(
                    htmlOutput("posthocTable")
                  )
                ),              
-               value = 4),
+               value = 4), selected = "Plot output",
+
       id="tabs1")
   )
   )

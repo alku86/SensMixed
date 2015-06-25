@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
       withProgress( message = "Calculating, please wait",
                     detail = "This may take a few moments...",{ 
                       res <- tryCatch({consmixed(response = input$Response, 
-                                                 Prod_effects= input$Products, 
+                                                 Prod_effects = input$Products, 
                                                  Cons_effects = input$Consumerchar, 
                                                  Cons = input$Consumers, data =ham, 
                                                  structure = input$struct, 
@@ -61,29 +61,26 @@ shinyServer(function(input, output, session) {
       
       
       withProgress(message = "Calculating, please wait",
-                   detail = "This may take a few moments...", {
+                   detail = "This may take a few moments...", {                     
                      
-                     
-                     res <- tryCatch({sensmixed(input$Attributes,
-                                                Prod_effects=input$Products, 
-                                                replication = input$Replications,
-                                                individual=input$Assessors, 
+                     res <- tryCatch({sensmixed(names(df.raw)[5:ncol(df.raw)],
+                                                Prod_effects=c("TVset", "Picture"), 
+                                                individual="Assessor", 
                                                 data=df.raw, 
-                                                calc_post_hoc = as.logical(input$calc_post_hoc), 
-                                                product_structure = as.numeric(input$struct),
-                                                error_structure = input$errstruct,
-                                                alpha.random = as.numeric(input$alpharand),
-                                                alpha.fixed = as.numeric(input$alphafixed),
-                                                reduce.random = as.logical(input$simplerr),
-                                                MAM = as.logical(input$MAM),
-                                                keep.effs = unlist(strsplit(input$keep, " ")),
+                                                calc_post_hoc = TRUE, 
+                                                product_structure = 3,
+                                                error_structure = "3-WAY",
+                                                alpha.random = 0.1,
+                                                alpha.fixed = 0.05,
+                                                reduce.random = TRUE,
+                                                MAM = FALSE,
+                                                keep.effs = NULL,
                                                 parallel = FALSE, 
-                                                mult.scaling = as.logical(input$multMAM),
-                                                oneway_rand = as.logical(input$oneway_rand))}, 
+                                                mult.scaling = FALSE,
+                                                oneway_rand = FALSE)}, 
                                      error = function(e) { NULL })
                    })
-    }
-    
+    }    
     return(res)
   })
   })
@@ -482,11 +479,14 @@ shinyServer(function(input, output, session) {
       ))
     else
       return(tabPanel("Input arguments",
-                      selectizeInput("Attributes", "Select attributes", names.dd,
+                      selectizeInput("Attributes", "Select attributes", 
+                                     names.dd,
                                      options = list(dropdownParent = 'body'),
+                                     selected = names.dd[5:length(names.dd)],
                                      multiple = TRUE),           
                       selectInput("Assessors", "Select assessor", 
-                                  names.dd),
+                                  names.dd, selected = 
+                                    names.dd[1]),
                       selectInput("Replications", "Select replications", 
                                   names.dd),
                       selectizeInput("Products", "Select products", names.dd,  
