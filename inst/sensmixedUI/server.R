@@ -30,7 +30,49 @@ shinyServer(function(input, output, session) {
     
     ## here the analysis of consumer/sensory data is sourced
     ## and saved in res variable
-    source('runAnalysis.R', local=TRUE)
+    #source('runAnalysis.R', local=TRUE)
+    if(input$analysis == "Consumer data"){
+      df.raw <- convertToFactors(df.raw, c(input$Consumers, input$Products,
+                                           input$Consumerfact))
+      withProgress( message = "Calculating, please wait",
+                    detail = "This may take a few moments...",{ 
+                      res <- tryCatch({consmixed(response = input$Response, 
+                                                 Prod_effects= input$Products, 
+                                                 Cons_effects = input$Consumerchar, 
+                                                 Cons = input$Consumers, data =ham, 
+                                                 structure = input$struct, 
+                                                 alpha.random = as.numeric(input$alpharand),
+                                                 alpha.fixed = as.numeric(input$alphafixed))}, 
+                                      error = function(e) { NULL })     
+                    })
+    }else{
+      df.raw <- convertToFactors(df.raw, c(input$Assessors, input$Products, 
+                                           input$Replications))
+      
+      
+      withProgress(message = "Calculating, please wait",
+                   detail = "This may take a few moments...", {
+                     
+                     
+                     res <- tryCatch({sensmixed(input$Attributes,
+                                                Prod_effects=input$Products, 
+                                                replication = input$Replications,
+                                                individual=input$Assessors, 
+                                                data=df.raw, 
+                                                calc_post_hoc = as.logical(input$calc_post_hoc), 
+                                                product_structure = as.numeric(input$struct),
+                                                error_structure = input$errstruct,
+                                                alpha.random = as.numeric(input$alpharand),
+                                                alpha.fixed = as.numeric(input$alphafixed),
+                                                reduce.random = as.logical(input$simplerr),
+                                                MAM = as.logical(input$MAM),
+                                                keep.effs = unlist(strsplit(input$keep, " ")),
+                                                parallel = FALSE, 
+                                                mult.scaling = as.logical(input$multMAM),
+                                                oneway_rand = as.logical(input$oneway_rand))}, 
+                                     error = function(e) { NULL })
+                   })
+    }
     
     return(res)
   })
@@ -54,8 +96,235 @@ shinyServer(function(input, output, session) {
   } 
   
   ## here the step results are formatted using xtable
-  source('stepUtils.R', local=TRUE)
-  source('posthocUtils.R', local=TRUE)
+  #source('stepUtils.R', local=TRUE)
+  ## TODO: partition the code
+  
+  getNameStep <- function(){
+    if(input$analysis == "Consumer data")
+      return("stepoutput")
+    else
+      return(input$AttrStep)
+  }
+  
+  
+  ## return table of results for the step function for the random part
+  ## in latex or html formats using xtable
+  ## for sensory/consumer data
+  stepRandResult <- function(){
+    if (is.null(Data())) {return()} 
+    if(input$analysis == "Consumer data"){
+      rnd <- Data()$rand.table
+      rnd[ , "p.value"] <- 
+        format.pval(rnd[, "p.value"], digits=3, eps=1e-3)
+      rnd_tab <- xtable(rnd, align = 
+                          paste(c("l", rep("c", ncol(rnd))), collapse = ""), 
+                        display= c("s","f","d","s","s"))
+      caption(rnd_tab) <- paste("Likelihood ratio tests for the 
+                                random-effects and their order of elimination representing Step 1 of 
+                                the automated analysis") 
+      
+      
+      
+      print(rnd_tab, caption.placement="top", table.placement="H", 
+            type = input$typetable,
+            html.table.attributes = getOption("xtable.html.table.attributes",
+                                              "rules='groups' width='100%'"))
+      
+    }
+    else{
+      if(is.null(input$AttrStep) || length(input$AttrStep)>1)
+      {return()}
+      st <- Data()$step_res[[input$AttrStep]] 
+      
+      st$rand.table[ , "p.value"] <- format.pval(st$rand.table[, "p.value"], 
+                                                 digits=3, eps=1e-3)
+      if(ncol(st$rand.table) == 3){
+        colnames(st$rand.table) <- c("Chi.sq","Chi.DF" , "p-value")
+        rand.table_tv <- xtable(st$rand.table, align="lccc", 
+                                display=c("s","f","d","s"))
+      }
+      else{
+        colnames(st$rand.table) <- c("Chi.sq","Chi.DF" , "elim.num", "p-value")
+        rand.table_tv <- xtable(st$rand.table, align="lcccc", 
+                                display=c("s","f","d","d","s"))
+      }     
+      caption(rand.table_tv) <- paste("Likelihood ratio tests for the 
+                                      random-effects and their order of elimination representing Step 1 of 
+                                      the automated analysis for the attribute", input$AttrStep)       
+      
+      print(rand.table_tv, caption.placement="top", table.placement="H", 
+            type = input$typetable, 
+            html.table.attributes = getOption("xtable.html.table.attributes",
+                                              "rules='groups' width='100%'")) 
+      
+    }    
+  }
+  
+  
+  ## return table of results for the step function for the fixed part
+  ## in latex or html formats using xtable
+  ## for sensory/consumer data
+  stepFixedResult <- function(){
+    if (is.null(Data())) {return()}
+    
+    if(input$analysis == "Consumer data"){
+      an <- Data()$anova.table
+      an[, "Pr(>F)"] <- format.pval(an[, "Pr(>F)"], digits=3, eps=1e-3)
+      if("elim.num" %in% colnames(an))
+        an_tab <- xtable(an, align = paste(c("l", rep("c", ncol(an))), 
+                                           collapse = ""), 
+                         display = c("s","f","f","d","f","f","s", "s"))
+      else
+        an_tab <- xtable(an, align = paste(c("l", rep("c", ncol(an))), 
+                                           collapse = ""), 
+                         display = c("s","f","f","d","f","f", "s"))
+      caption(an_tab) <- 
+        paste("F-tests for the fixed-effects and their order of elimination representing Step 3 of the automated analysis")
+      
+      print(an_tab, caption.placement="top",
+            table.placement="H", 
+            type = input$typetable, 
+            html.table.attributes = 
+              getOption("xtable.html.table.attributes",
+                        "rules='groups' width='100%'"))    
+      
+    }
+    else{
+      if(is.null(input$AttrStep) || length(input$AttrStep)>1)
+      {return()}
+      
+      
+      
+      st <- Data()$step_res[[input$AttrStep]] 
+      
+      
+      st$anova.table[, "Pr(>F)"] <- format.pval(st$anova.table[, "Pr(>F)"], 
+                                                digits=3, eps=1e-3)
+      if("dprimeav" %in% colnames(st$anova.table)){
+        colnames(st$anova.table) <-
+          c("Sum Sq", "Mean Sq", "NumDF", "DenDF", "F-value","d-prime", "Pr(>F)")
+        anova.table_tv <- xtable(st$anova.table, align="lccccccc", 
+                                 display=c("s","f","f","s","f","f","f", "s"))
+      }else{
+        colnames(st$anova.table) <-
+          c("Sum Sq", "Mean Sq", "NumDF", "DenDF", "F-value", "Pr(>F)")
+        anova.table_tv <- xtable(st$anova.table, align="lcccccc", 
+                                 display=c("s","f","f","s","f","f", "s"))
+      }      
+      
+      caption(anova.table_tv) <- 
+        paste("F-tests for the fixed-effects  for the attribute",
+              input$AttrStep)
+      
+      print(anova.table_tv, caption.placement="top",
+            table.placement="H", 
+            type = input$typetable,
+            html.table.attributes = 
+              getOption("xtable.html.table.attributes",
+                        "rules='groups' width='100%'"))     
+    }  
+    
+  }
+  #source('posthocUtils.R', local=TRUE)
+  posthocResult <- function(){
+    if (is.null(Data())) {return()}
+    if(input$analysis == "Consumer data"){
+      result <- Data()
+      names.lsm <- "Population means for attribute"
+      names.dlsm <- "Multiple comparison tests"
+    }
+    else{
+      if(is.null(input$AttrPosthoc) || length(input$AttrPosthoc)>1)
+      {return()}
+      if(!("post_hoc" %in% names(Data()))) {return()}
+      
+      result <- Data()$step_res[[input$AttrPosthoc]]     
+      
+      names.lsm <- paste("Population means for attribute ", 
+                         input$AttrPosthoc)
+      names.dlsm <- paste("Multiple comparison tests for attribute ",
+                          input$AttrPosthoc)    
+    } 
+    
+    if(input$whichPlot == "LSMEANS"){
+      ph <- result$lsmeans.table
+      
+      rnames <- rownames(ph)
+      diffs.facs <- sapply(rnames, 
+                           function(x) 
+                             substring(x, 1, 
+                                       substring.location(x, " ")$first[1]-1), 
+                           USE.NAMES = FALSE)    
+      find.fac <- diffs.facs %in% input$effsPlot
+      ph <- ph[find.fac,]
+      ph[, which(colnames(ph)=="p-value")] <- 
+        format.pval(ph[, which(colnames(ph)=="p-value")], digits=3, eps=1e-3)
+      ph_tab <- xtable(ph, align = paste(c("l", rep("c", ncol(ph))), 
+                                         collapse = ""), 
+                       display = c(rep("s",
+                                       which(colnames(ph) == "Estimate")), 
+                                   rep("f", 6), "s"))
+      
+      caption(ph_tab) <- names.lsm
+      print(ph_tab, caption.placement="top",
+            table.placement="H", 
+            type = "html",
+            html.table.attributes = getOption("xtable.html.table.attributes",
+                                              "rules='groups' width='105%'"))
+      
+    }
+    else{
+      ph <- result$diffs.lsmeans.table
+      rnames <- rownames(ph)
+      diffs.facs <- sapply(rnames, 
+                           function(x) 
+                             substring(x, 1, 
+                                       substring.location(x, " ")$first[1]-1), 
+                           USE.NAMES = FALSE)    
+      find.fac <- diffs.facs %in% input$effsPlot
+      ph <- ph[find.fac,]
+      
+      ph[, 7] <- format.pval(ph[, 7], digits=3, eps=1e-3)
+      
+      ph_tab <- xtable(ph, align="lccccccc", 
+                       display=c("s","f","f","f","f","f","f", "s"))
+      caption(ph_tab) <- names.dlsm
+      
+      print(ph_tab, caption.placement="top",
+            table.placement="H", 
+            type = "html",
+            html.table.attributes = 
+              getOption("xtable.html.table.attributes",
+                        "rules='groups' width='105%'"))
+      
+    }
+  }
+  
+  posthocPlot <- function(){
+    if (is.null(Data())) {return()}
+    if(input$analysis == "Consumer data")
+      plot(Data(), cex = 1.6, 
+           which.plot = input$whichPlot, effs = input$effsPlot) 
+    else{
+      if(!("post_hoc" %in% names(Data()))) {return()}
+      
+      if(is.null(input$AttrPosthoc) || length(input$AttrPosthoc)>1)
+      {return()}
+      
+      if(input$MAM == "TRUE"){
+        if(input$whichPlot == "LSMEANS")
+          tab <- Data()$step_res[[input$AttrPosthoc]]$lsmeans.table
+        else
+          tab <- Data()$step_res[[input$AttrPosthoc]]$diffs.lsmeans.table
+        plotLSMEANS(table = tab, 
+                    response = Data()$step_res[[input$AttrPosthoc]]$response, 
+                    which.plot = input$whichPlot, effs = input$effsPlot)
+      }
+      else
+        plot(Data()$step_res[[input$AttrPosthoc]], cex = 1.6, 
+             which.plot = input$whichPlot, effs = input$effsPlot) 
+    }       
+  }
   ##############################################################################
 
   
@@ -178,7 +447,223 @@ shinyServer(function(input, output, session) {
    
 
   ## here the server part of the UI is sourced
-  source('serverUI.R', local = TRUE)
+  #source('serverUI.R', local = TRUE)
+  #### The file contains the server part of the UI (interactive UI)
+  
+  ## constructs tab panel for the input controls
+  tabPanel.input <- function(names.dd){
+    if(input$analysis == "Consumer data")
+      return(tabPanel("Input arguments",
+                      selectInput("Response", "Select response", names.dd),           
+                      selectInput("Consumers", "Select consumer", names.dd),
+                      selectizeInput("Products", "Select products", names.dd,  
+                                     options = list(dropdownParent = 'body'),
+                                     multiple = TRUE),
+                      selectizeInput("Consumerchar", 
+                                     "Select consumer characteristics", 
+                                     names.dd,  
+                                     options = list(dropdownParent = 'body'),
+                                     multiple = TRUE),
+                      selectizeInput("Consumerfact", 
+                                     "Consumer characteristics treated as factors", 
+                                     names.dd,  
+                                     options = list(dropdownParent = 'body'),
+                                     multiple = TRUE)
+      ))
+    else
+      return(tabPanel("Input arguments",
+                      selectizeInput("Attributes", "Select attributes", names.dd,
+                                     options = list(dropdownParent = 'body'),
+                                     multiple = TRUE),           
+                      selectInput("Assessors", "Select assessor", 
+                                  names.dd),
+                      selectInput("Replications", "Select replications", 
+                                  names.dd),
+                      selectizeInput("Products", "Select products", names.dd,  
+                                     options = list(dropdownParent = 'body'),
+                                     multiple = TRUE)
+      ))
+  }
+  
+  ## constructs tab panel for the modelling controls
+  tabPanel.model <- function(){
+    if(input$analysis == "Consumer data")
+      return(tabPanel("Modelling controls",
+                      selectInput('struct', 'Select structure', 
+                                  c("1" = 1, "2" = 2, "3" = 3))             
+      ))
+    else
+      return(tabPanel("Modelling controls",                
+                      selectInput('struct', 
+                                  'Select product structure', 
+                                  c("1" = 1, "2" = 2, "3" = 3)),
+                      bsCollapsePanel("Help product structure", 
+                                      tableOutput("helpprodstruct"), id="col1", 
+                                      value="test1"),
+                      selectInput('errstruct', 
+                                  'Select error structure', 
+                                  c("No_Rep" = "No_Rep", 
+                                    "2-WAY" = "2-WAY", 
+                                    "3-WAY" = "3-WAY")),
+                      bsCollapsePanel("Help error structure", 
+                                      tableOutput("helperrstruct"), 
+                                      id="col2", value="test2"),
+                      selectInput('oneway_rand', 'One-way product random part', 
+                                  c( "No" = FALSE, "Yes" = TRUE)),
+                      bsCollapsePanel("Help one-way product random part", 
+                                      tableOutput("helponeway"), 
+                                      id="col2", value="test2"),
+                      selectInput('MAM', 'Correct for scaling', c("Yes" = TRUE, 
+                                                                  "No" = FALSE)),
+                      selectInput('multMAM', 'Mult-way scaling', c("No" = FALSE, 
+                                                                   "Yes" = TRUE))                  
+      ))
+  }
+  
+  ## constructs tab panel for the analysis controls
+  tabPanel.an <- function(){
+    if(input$analysis == "Consumer data")
+      return(tabPanel("Analysis controls",
+                      selectInput('alpharand', 
+                                  'Type 1 error for testing random effects', 
+                                  c("0.1" = 0.1, "0.2" = 0.2, "0.05" = 0.05)),
+                      selectInput('alphafixed', 
+                                  'Type 1 error for testing fixed effects', 
+                                  c("0.05" = 0.05, "0.01" = 0.01, 
+                                    "0.001" = 0.001)))
+      )
+    else
+      return(tabPanel("Analysis controls",                     
+                      selectInput('calc_post_hoc', 'Calculate post-hoc', 
+                                  c("Yes" = TRUE, "No" = FALSE)),
+                      selectInput('simplerr', 'Simplification of error structure', 
+                                  c("Yes" = TRUE, "No" = FALSE)),
+                      textInput("keep", label = "Effects to keep in a model", 
+                                value = "Enter effects separated by space..."),
+                      selectInput('alpharand', 
+                                  'Type 1 error for testing random effects', 
+                                  c("0.1" = 0.1, "0.2" = 0.2, "0.05" = 0.05)),
+                      selectInput('alphafixed', 
+                                  'Type 1 error for testing fixed effects', 
+                                  c("0.05" = 0.05, "0.01" = 0.01, 
+                                    "0.001" = 0.001))
+      ))
+  }
+  
+  output$AttrUI <- renderUI({ 
+    if(is.null(uploadData()))
+    {names.dd <- NULL}
+    else{
+      dd <- uploadData()
+      names.dd <- colnames(dd)
+    }
+    tabsetPanel(
+      tabPanel.input(names.dd),
+      tabPanel.model(),
+      tabPanel.an()
+    )  
+  })
+  
+  
+  
+  output$AttrStepUI <- renderUI({
+    if(is.null(Data())) {return()}    
+    if(input$analysis == "Consumer data") {
+      list(
+        selectInput("typetable", "Type", c("html", "latex")),
+        downloadButton('downloadStep', label = "Download Table")
+      )
+    } 
+    else{
+      list(
+        selectInput("AttrStep", "Select attribute", names(Data()$step_res)),
+        selectInput("typetable", "Type", c("html", "latex")),
+        downloadButton('downloadStep', label = "Download Table"))
+    }
+  })
+  
+  output$AttrPosthocUI <- renderUI({
+    if(is.null(Data()))    {return()}   
+    if(input$analysis == "Consumer data") {
+      selectInput("whichPlot", "Type of Plot", 
+                  c("LSMEANS" = "LSMEANS", 
+                    "DIFF of LSMEANS" = "DIFF of LSMEANS"))
+    }
+    else{
+      list(
+        selectInput("AttrPosthoc", "Select attribute", names(Data()$step_res)),    
+        selectInput("whichPlot", "Type of Plot", 
+                    c("LSMEANS" = "LSMEANS", 
+                      "DIFF of LSMEANS" = "DIFF of LSMEANS")))      
+    }
+    
+    
+  })
+  
+  output$EffsPosthocUI <- renderUI({
+    if(is.null(Data()))    {return()}   
+    if(input$analysis == "Consumer data"){
+      an.table <- Data()$anova.table
+    }
+    else{
+      if(is.null(input$AttrPosthoc) || length(input$AttrPosthoc)>1)
+      {return()}
+      an.table <- Data()$step_res[[input$AttrPosthoc]]$anova.table
+    }    
+    
+    if("elim.num" %in% colnames(an.table)){
+      effs <- rownames(an.table[which(an.table$elim.num == "kept"), , 
+                                drop = FALSE])
+    }
+    else
+      effs <- rownames(an.table)
+    list(
+      selectInput("effsPlot", "Effects", effs),
+      downloadButton('downloadPosthocTable', label = "Download Table"),
+      downloadButton('downloadPosthocPlot', label = "Download Plot")
+    )
+  })
+  
+  output$UploadUI <- renderUI({    
+    if(input$uploaddata == 1){ 
+      verticalLayout(
+        
+        #tags$hr(),
+        fileInput('file1', 
+                  'Choose CSV File from local drive, adjusting parameters if necessary',
+                  accept=c('text/csv', 'text/comma-separated-values,text/plain')),
+        
+        checkboxInput('header', 'Header', TRUE),
+        radioButtons('sep', 'Separator',
+                     c(Semicolon=';',
+                       Comma=',',
+                       Tab='\t'),
+                     'Semicolon'),
+        radioButtons('quote', 'Quote',
+                     c(None='',
+                       'Double Quote'='"',
+                       'Single Quote'="'"),
+                     'Double Quote'),
+        radioButtons('decimal', 'Decimal',
+                     c("Period" = ".", "Comma" = ",")),
+        tags$head(tags$style(type="text/css",
+                             "label.radio { display: inline-block; margin:0 10 0 0;  }",
+                             ".radio input[type=\"radio\"] { float: none; }")),
+        mainPanel(
+          dataTableOutput('contents')
+        )      
+        
+      )
+    }
+    else{
+      verticalLayout(        
+        mainPanel(
+          dataTableOutput('contents')
+        )         
+      )
+    }   
+    
+  })
 
   
   addTooltip(session, "plotsSensMixed", "title", placement = "bottom", 
