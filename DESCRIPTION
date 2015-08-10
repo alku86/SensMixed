@@ -1,6 +1,6 @@
 Package: SensMixed
 Type: Package
-Title: Tests in Linear Mixed Effects Models
+Title: Analysis of sensory and consumer data in a mixed model framework
 Version: 2.0-8
 Authors@R: c(person("Alexandra", "Kuznetsova", role = c("aut", "cre"),
                           email = "alku@dtu.dk"),
@@ -9,13 +9,16 @@ Authors@R: c(person("Alexandra", "Kuznetsova", role = c("aut", "cre"),
 Maintainer: Alexandra Kuznetsova <alku@dtu.dk>
 Depends: stats, methods, lmerTest
 Imports: Hmisc, parallel, plyr, doBy, xtable,
-         reshape2, ggplot2, shiny, googleVis, shinyBS, lme4
-Suggests: pbkrtest
+         reshape2, ggplot2, shiny, shinyBS, lme4
+Suggests: pbkrtest, R.rsp
+VignetteBuilder: R.rsp
 Description:  Functions that facilitate analysis of 
               Sensory as well as Consumer data within a mixed effects model 
               framework are provided. The so-called mixed assessor models, 
               that correct for the scaling effect are implemented.
               The generation of the d-tilde plots forms part of the package.
+              The shiny application for the  functionalities 
+              forms part of the package.
 LazyData: TRUE
 License: GPL (>= 2)
 Repository: CRAN

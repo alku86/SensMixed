@@ -8,7 +8,7 @@ testBO <- FALSE
 
 
 
-
+TVbo <- convertToFactors(TVbo, c("Assessor", "Repeat", "Picture"))
 result <- sensmixed(c("Noise", "Elasticeffect"),
                     Prod_effects = c("TVset", "Picture"),
                     replication = "Repeat", 

@@ -1,6 +1,8 @@
 require(SensMixed)
 load(system.file("testdata","senscherry.RData",package="SensMixed"))
 
+#convert some variables to factors in TVbo
+TVbo <- convertToFactors(TVbo, c("Assessor", "Repeat", "Picture"))
 
 res_paral <- sensmixed(c("Coloursaturation", "Colourbalance"),
                        Prod_effects = c("TVset", "Picture"), replication="Repeat", 

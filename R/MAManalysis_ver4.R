@@ -111,7 +111,7 @@ MAManalysis=function(data,adjustedMAM=TRUE,alpha_conditionalMAM=0.2){
   # A 3-way array with the MAM based confidence limits for the product differences
   # for each attribute using the new method introduced in Brockhoff et al (2013)
   # The lower and upper 95% confidence limits are shown for each comparison
-  # result[[6]][,,1] contains the Connfidence limits for attribute 1.
+  # result[[6]][,,1] contains the Confidence limits for attribute 1.
   #
   #
   #  
@@ -154,8 +154,16 @@ FinalTable=array(dim=c(12,nass+1,natt))
 AOVtable=array(dim=c(5,5,natt))
 
 prodmeans=array(dim=c(nprod,natt))
+
 assmeans=array(dim=c(nass,natt))
 proddiffs=array(dim=c(nprod*(nprod-1)/2,natt))
+
+colnames(proddiffs) <- attnames ## added by alku
+
+stddiffs=array(dim=c(nprod*(nprod-1)/2,natt))
+
+colnames(stddiffs) <- attnames ## added by alku
+
 #proddiffs=array(dim=c(nprod,nprod,natt))
 prodeffects=array(dim=c(natt,nprod))
 
@@ -172,6 +180,10 @@ data$X=X
 xam=summaryBy(X~ass,data=data)
 xpm=summaryBy(X~prod,data=data)
 prodmeans[,p-3]=xpm$X.mean
+
+rownames(prodmeans) <- xpm$prod ## added by alku
+colnames(prodmeans) <- attnames ## added by alku
+
 assmeans[,p-3]=xam$X.mean
 xapm=summaryBy(X~ass+prod,data=data)
 xapm$int=xapm$X.mean-rep(xam$X.mean,rep(nprod,nass))-rep(xpm$X.mean,nass)+mu
@@ -206,10 +218,15 @@ indivTable[7,,p-3]=scale(assmeans[,p-3],scale=F)
 
 
 k=0
+names.diff <- NULL
 for  (i in 1:(nprod-1)) for (j in (i+1):nprod){
-k=k+1
-proddiffs[k,p-3]=(prodmeans[i,p-3]-prodmeans[j,p-3])
+k <- k+1
+names.diff[k] <- paste(rownames(prodmeans)[i], "-", rownames(prodmeans)[j])
+proddiffs[k,p-3] <- (prodmeans[i,p-3]-prodmeans[j,p-3])
 }
+
+rownames(stddiffs) <- rownames(proddiffs) <- names.diff
+
 
 for  (i in 1:nprod) prodeffects[p-3,i]=prodmeans[i,p-3]-mean(prodmeans[-i,p-3])
 
@@ -346,6 +363,9 @@ dimnames(AOVtable)[[2]]=c("SS","MS","DF","F","Pval")
 dimnames(AOVtable)[[3]]=attnames
 
 # First the int-based p-values are found:
+stddiffs[] <- matrix(rep(sqrt(2*msint/(nrep*nass)),nprod*(nprod-1)/2),
+                   ncol=natt,byrow=T)
+
 diffpvals=1-pt(abs(proddiffs)/matrix(rep(sqrt(2*msint/(nrep*nass)),nprod*(nprod-1)/2),
                                      ncol=natt,byrow=T),(nprod-1)*(nass-1))
 effectspvals=1-pt(abs(prodeffects)/matrix(rep(sqrt(msint*(1/(nrep*nass)+1/(nrep*nass*(nprod-1)))),
@@ -354,6 +374,8 @@ rep(nprod,natt)),ncol=nprod,byrow=T),(nprod-1)*(nass-1))
 
 for (p in 1:natt){
 if (MAMcondition[p]) {
+stddiffs[, p] <- matrix(rep(sqrt(2*msd/(nrep*nass)),nprod*(nprod-1)/2),
+         ncol=natt,byrow=T)[, p]  
 diffpvals[,p]=1-pt(abs(proddiffs[,p])/matrix(rep(sqrt(2*msd/(nrep*nass)),nprod*(nprod-1)/2),
                                        ncol=natt,byrow=T)[,p],(nprod-2)*(nass-1))
 effectspvals[p,]=1-pt(abs(prodeffects[p,])/matrix(rep(sqrt(msd*(1/(nrep*nass)+1/(nrep*nass*(nprod-1)))),
@@ -392,6 +414,22 @@ ProdTable[i2,]=PPtabT
 i1=(1:nprod)*2-1
 i2=(1:nprod)*2
 DIFtable=array(dim=c(2*(nprod-1),nprod-1,natt))
+
+## create difflsmeans table for each attribute
+## similar to lmerTest, which also contains std errors
+lsmeans.tab <- array(dim = c(nrow(proddiffs), 3 , natt)) ## added by alku
+
+
+dimnames(lsmeans.tab)[[1]] <- rownames(proddiffs)
+dimnames(lsmeans.tab)[[2]] <- c("Estimate", "Standard Error", "Pval")
+dimnames(lsmeans.tab)[[3]] <- attnames
+
+for(k in 1:nrow(proddiffs)){
+  lsmeans.tab[k,1,] <-  round(proddiffs[k,], 3)
+  lsmeans.tab[k,2,] <-  round(stddiffs[k,], 3)
+  lsmeans.tab[k,3,] <-  round(diffpvals[k,], 4)
+}
+
 
 k=0
 for  (i in 1:(nprod-1)) for (j in (i+1):nprod){
@@ -501,7 +539,23 @@ for  (i in 1:(nprod-1)) for (j in (i+1):nprod){
   CLTable[2*i,j-1,]=round(ULs[k,],4)
 }
 
-list(IndividualTable,FinalTable,AOVtable,DIFtable,ProdTable,CLTable)
+
+## create table for CI for the shiny app in SensMixed
+ci.tab <- array(dim = c(nrow(proddiffs), 2 , natt)) ## added by alku
+
+
+dimnames(ci.tab)[[1]] <- rownames(proddiffs)
+dimnames(ci.tab)[[2]] <- c("Lower CI", "Upper CI")
+dimnames(ci.tab)[[3]] <- attnames
+
+for(k in 1:nrow(proddiffs)){
+  ci.tab[k,1,] <-  round(LLs[k,], 4)
+  ci.tab[k,2,] <-  round(ULs[k,], 4)
+}
+
+
+list(IndividualTable, FinalTable, AOVtable, DIFtable, lsmeans.tab, ProdTable,
+     CLTable, ci.tab)
 
 }
 

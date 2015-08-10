@@ -1,5 +1,8 @@
 require(SensMixed)
 
+#convert some variables to factors in TVbo
+TVbo <- convertToFactors(TVbo, c("Assessor", "Repeat", "Picture"))
+
 res <- sensmixed(c("Coloursaturation", "Colourbalance"),
                  Prod_effects = c("TVset", "Picture"), replication="Repeat", 
                  individual="Assessor", data=TVbo, keep.effs = "Assessor")

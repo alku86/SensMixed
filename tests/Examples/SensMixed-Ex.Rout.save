@@ -1,7 +1,7 @@
 
-R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
 Copyright (C) 2015 The R Foundation for Statistical Computing
-Platform: x86_64-w64-mingw32/x64 (64-bit)
+Platform: i386-w64-mingw32/i386 (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -342,11 +342,11 @@ Error        161.67   0.96 168    NA     NA
 > res$fixed      
 $Fval
       Coloursaturation Colourbalance
-TVset         16.10851      5.582796
+TVset         16.10851      5.582797
 
 $pvalueF
       Coloursaturation Colourbalance
-TVset      0.002402584    0.03551977
+TVset      0.002402582    0.03551971
 
 > 
 > ## Not run: 
@@ -413,57 +413,57 @@ Elasticeffect         65.42 ***  22.17 ***  34.62 ***
 > result$fixed
 $Fval
               Coloursaturation Colourbalance     Noise     Depth Sharpness
-TVset                16.075643      5.155895 41.973258 14.088651 23.461524
+TVset                16.075643      5.155894 41.973258 14.088651 23.461525
 Picture               4.350186      1.366872 35.779922  3.925361  3.474729
-TVset:Picture         2.676111      4.161644  5.451543  2.974771  6.947237
+TVset:Picture         2.676111      4.161644  5.451543  2.974771  6.947236
               Lightlevel Contrast Sharpnessofmovement Flickeringstationary
-TVset          44.499221 9.664550           0.2436961            6.0307781
+TVset          44.499217 9.664550           0.2436961            6.0307781
 Picture        11.860184 3.600907           4.7735469           13.4993781
-TVset:Picture   4.365633 4.082186           4.1776554            0.6771455
+TVset:Picture   4.365633 4.082186           4.1776553            0.6771455
               Flickeringmovement Distortion Dimglasseffect   Cutting
-TVset                  0.5196945   10.10103       6.983486 20.008339
-Picture                2.1989356   38.56281       7.313048  3.675437
+TVset                  0.5196945   10.10103       6.983486 20.008340
+Picture                2.1989357   38.56281       7.313048  3.675437
 TVset:Picture          0.1880705   22.21871       1.786839  4.442049
               Flossyedges Elasticeffect
 TVset            7.535224      65.41982
-Picture          9.591871      22.16991
+Picture          9.591869      22.16991
 TVset:Picture    4.501171      34.62244
 
 $dprimeav
               Coloursaturation Colourbalance     Noise     Depth Sharpness
 TVset                2.0067826     1.2485996 1.1452968 1.1315475 1.6645805
 Picture              0.4257570     0.3132705 2.0721587 0.4044215 0.4852896
-TVset:Picture        0.4271716     0.5326901 0.6096582 0.4503614 0.8777525
+TVset:Picture        0.4271611     0.5326723 0.6096582 0.4503614 0.8777454
               Lightlevel  Contrast Sharpnessofmovement Flickeringstationary
-TVset          4.1997042 1.4509061           0.1183767            0.4341093
-Picture        0.9633196 0.3873240           0.7470852            0.7499743
-TVset:Picture  0.7476661 0.5275557           0.5336938            0.2148674
+TVset          4.1997041 1.4509061           0.1183767            0.4341093
+Picture        0.9633196 0.3873240           0.7470535            0.7499743
+TVset:Picture  0.7476660 0.5275721           0.5336886            0.2148674
               Flickeringmovement Distortion Dimglasseffect   Cutting
-TVset                  0.1274410   1.621604      0.4671678 1.9392168
-Picture                0.4579629   1.935320      1.2723126 0.3913650
-TVset:Picture          0.1132358   1.879169      0.3490462 0.5503385
+TVset                  0.1274434   1.621604      0.4671510 1.9391541
+Picture                0.4579629   1.935302      1.2723126 0.3913650
+TVset:Picture          0.1132417   1.879163      0.3490552 0.5503285
               Flossyedges Elasticeffect
 TVset           1.0712514      1.429855
 Picture         1.6503898      2.559417
-TVset:Picture   0.5539883      1.536455
+TVset:Picture   0.5539792      1.536455
 
 $pvalueF
               Coloursaturation Colourbalance        Noise        Depth
-TVset             5.826497e-05  0.0158161384 3.108624e-15 0.0004439608
-Picture           5.634430e-03  0.2807556018 1.942869e-08 0.0097672435
-TVset:Picture     1.679063e-02  0.0007074308 3.918875e-05 0.0088311173
+TVset             5.826503e-05  0.0158161502 3.108624e-15 0.0004439611
+Picture           5.634430e-03  0.2807555720 1.942873e-08 0.0097672435
+TVset:Picture     1.679063e-02  0.0007074308 3.918875e-05 0.0088311174
                  Sharpness   Lightlevel     Contrast Sharpnessofmovement
-TVset         3.383966e-05 8.571969e-07 0.0010575679        0.7869818433
-Picture       2.108749e-02 2.962294e-06 0.0148687086        0.0108784982
-TVset:Picture 1.070114e-05 9.533615e-04 0.0007758664        0.0006844791
+TVset         3.383960e-05 8.572066e-07 0.0010575671        0.7869818425
+Picture       2.108750e-02 2.962295e-06 0.0148687086        0.0108784988
+TVset:Picture 1.070114e-05 9.533616e-04 0.0007758664        0.0006844792
               Flickeringstationary Flickeringmovement   Distortion
-TVset                 2.938568e-03          0.5957550 8.446058e-04
-Picture               5.895203e-08          0.1182340 2.842171e-14
+TVset                 2.938568e-03          0.5957550 8.446057e-04
+Picture               5.895205e-08          0.1182340 2.842171e-14
 TVset:Picture         6.682783e-01          0.9797916 7.305268e-14
               Dimglasseffect      Cutting  Flossyedges Elasticeffect
-TVset            0.001254485 7.856004e-05 0.0060080539  0.000000e+00
-Picture          0.001540688 1.350076e-02 0.0003442868  1.479462e-07
-TVset:Picture    0.105303368 3.495398e-04 0.0003391643  0.000000e+00
+TVset            0.001254485 7.855998e-05 0.0060080520  0.000000e+00
+Picture          0.001540687 1.350076e-02 0.0003442876  1.479459e-07
+TVset:Picture    0.105303367 3.495397e-04 0.0003391644  0.000000e+00
 
 > 
 > result_MAM <- sensmixed(names(TVbo)[5:ncol(TVbo)],
@@ -628,10 +628,7 @@ Warning:
  Random term (1 | TVset:Picture:Assessor) was eliminated because of standard deviation being equal to 0 
 
 fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
-  |                                                                              |========================================================              |  80%Warning: 
- Random term (1 | TVset:Picture:Assessor) was eliminated because of standard deviation being equal to 0 
-
-fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+  |                                                                              |========================================================              |  80%fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
   |                                                                              |=============================================================         |  87%Warning: 
  Random term (1 | TVset:Picture:Assessor) was eliminated because of standard deviation being equal to 0 
 
@@ -721,7 +718,7 @@ Elasticeffect          0.87          10.88 ***
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  42.42 0.22 42.79 NA NA 
+Time elapsed:  41.07 0.25 41.48 NA NA 
 > grDevices::dev.off()
 null device 
           1 

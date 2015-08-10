@@ -145,8 +145,8 @@ Alexandra Kuznetsova, Per Bruun Brockhoff, Rune Haubo Bojesen Christensen
 #import SensMixed package
 library(SensMixed)
 
-#import TVbo data from lmerTest package
-data(TVbo)
+#convert some variables to factors in TVbo
+TVbo <- convertToFactors(TVbo, c("Assessor", "Repeat", "Picture"))
 
 #run automated selection process
 res <- sensmixed(c("Coloursaturation", "Colourbalance"),
@@ -175,7 +175,7 @@ plot(result)
 }
 
 
-result <- sensmixed(names(TVbo)[5:ncol(TVbo)],
+result <- sensmixed(names(TVbo)[5:(ncol(TVbo))],
 Prod_effects=c("TVset", "Picture"),
 replication="Repeat", individual="Assessor", data=TVbo, 
 calc_post_hoc = TRUE)
@@ -183,14 +183,14 @@ calc_post_hoc = TRUE)
 result
 result$fixed
 
-result_MAM <- sensmixed(names(TVbo)[5:ncol(TVbo)],
+result_MAM <- sensmixed(names(TVbo)[5:(ncol(TVbo))],
 Prod_effects=c("TVset", "Picture"),
 replication="Repeat", individual="Assessor", data=TVbo,
 MAM = TRUE)
 
 result_MAM
 
-result_MAM_mult <- sensmixed(names(TVbo)[5:ncol(TVbo)],
+result_MAM_mult <- sensmixed(names(TVbo)[5:(ncol(TVbo))],
 Prod_effects=c("TVset", "Picture"),
 replication="Repeat", individual="Assessor", data=TVbo,
 MAM = TRUE, mult.scaling = TRUE)

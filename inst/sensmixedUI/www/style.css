@@ -1,3 +1,6 @@
-.tab-content {
-  overflow: visible !important;
+.shiny-progress {
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -150px !important;
+  margin-left: -350px !important;
 }

@@ -2,6 +2,9 @@ require(SensMixed)
 checkMAM <- TRUE
 
 if(checkMAM){
+  
+  #convert some variables to factors in TVbo
+  TVbo <- convertToFactors(TVbo, c("Assessor", "Repeat", "Picture"))
   ##
   atts <- names(TVbo)[5:10]
   res_MAM <- sensmixed(atts, Prod_effects = c("TVset"), 

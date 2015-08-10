@@ -160,7 +160,7 @@ change.inter.symbol <- function(x, interact.symbol){
         pvalues = x$rand$pvalueChi[i,], isRand=TRUE    
       )     
     } 
-    caption.rand = "Likelihood ration test for the random effects"
+    caption.rand = "Likelihood ratio test for the random effects"
   }
   else{
     caption.rand = ""
@@ -287,6 +287,7 @@ change.inter.symbol <- function(x, interact.symbol){
   else
     xt.rand <- xtable(x$rand.table, align="lccc", 
                       display=c("s","f","d","s"))
+  caption <- NULL
   caption(xt.rand) <- "Likelihood ratio tests for the random-effects
   and their order of elimination"
   print(xt.rand, caption.placement="top", table.placement="H",

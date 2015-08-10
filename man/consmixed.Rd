@@ -69,9 +69,12 @@ Alexandra Kuznetsova, Per Bruun Brockhoff, Rune Haubo Bojesen Christensen
 
 \examples{
 library(SensMixed)
-data(ham)
 
-consmixed(response="Informed.liking", 
+#convert some variables to factors in Tham
+ham <- convertToFactors(ham, c("Consumer", "Product", "Information", "Gender"))
+
+
+consmixed(response="Liking", 
 Prod_effects= c("Product","Information"), 
 Cons_effects=c("Gender","Age"), Cons = "Consumer", data =ham, structure=1)
 

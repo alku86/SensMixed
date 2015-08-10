@@ -46,7 +46,11 @@ Alexandra Kuznetsova
 
 
 \examples{
-res <- consmixed(response="Informed.liking", 
+
+#convert some variables to factors in Tham
+ham <- convertToFactors(ham, c("Consumer", "Product", "Information", "Gender"))
+
+res <- consmixed(response="Liking", 
 Prod_effects= c("Product","Information"), 
 Cons_effects=c("Gender","Age"), Cons = "Consumer", data =ham, structure=1)
 

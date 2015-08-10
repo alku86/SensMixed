@@ -1,5 +1,9 @@
 import(lmerTest)
-importFrom(lme4, VarCorr, fixef, isGLMM, isLMM, getME, sigma)
+importFrom(lme4, VarCorr, fixef, isGLMM, isLMM, getME)
+if(getRversion() >= "3.3.0") {
+    importFrom("stats", sigma)
+}
+
 import(Hmisc)
 importFrom("graphics", plot)
 #importFrom(gplots, barplot2)
@@ -13,8 +17,8 @@ import(shiny)
 #import(xtable)
 import(reshape2)
 import(ggplot2)
-import(googleVis)
-import(shinyBS)
+#import(googleVis)
+importFrom(shinyBS, bsPopover)
 
 export(sensmixed)
 export(consmixed)

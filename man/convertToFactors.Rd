@@ -28,7 +28,7 @@ Alexandra Kuznetsova
 }
 \examples{
 library(SensMixed)
-data(ham)
+
 str(ham)
 
 ham <- convertToFactors(ham, c("Gender"))
